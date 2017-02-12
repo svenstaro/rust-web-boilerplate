@@ -1,42 +1,32 @@
 use rocket_contrib::JSON;
 use validation::user::UserSerializer;
-use frank_jwt::{Header, Payload, Algorithm, encode, decode};
-use argon2rs::argon2i_simple;
 
 use diesel::prelude::*;
 use diesel;
 
-use establish_connection;
+use helpers::db::establish_connection;
 use models::user::{UserModel, NewUser};
 use schema::users;
 use schema::users::dsl::*;
 
 
-#[post("/login", data = "<user>", format = "application/json")]
-pub fn login(user: JSON<UserSerializer>) -> String {
+#[post("/login", data = "<user_in>", format = "application/json")]
+pub fn login(user_in: JSON<UserSerializer>) -> String {
     let connection = establish_connection();
 
-    let results = users.filter(email.eq(user.email.clone()))
-        .first::<UserModel>(&connection)
-        .expect("Error loading posts");
+    let results = users.filter(email.eq(user_in.email.clone()))
+        .first::<UserModel>(&connection);
 
-    // println!("Displaying {} posts", results.len());
-    // for post in results {
-    //     println!("{}", post.title);
-    //     println!("----------\n");
-    //     println!("{}", post.body);
-    // }
-    if user.email == "lol" && user.password == "lol" {
-        let mut payload = Payload::new();
-        payload.insert("user_id".to_string(), "5".to_string());
-        let header = Header::new(Algorithm::HS256);
-        let secret = "lolsecret";
-        let jwt = encode(header, secret.to_string(), payload.clone());
-        jwt
+    if results.is_err() {
+        return "404".to_string();
     }
-    else {
-        "no login".to_string()
+
+    let user = results.unwrap();
+    if !user.verify_password(user_in.password.as_str()) {
+        return "no login".to_string();
     }
+
+    user.generate_auth_token("loginsalt")
 }
 
 #[post("/register", data = "<user>", format = "application/json")]
@@ -49,9 +39,10 @@ pub fn register(user: JSON<UserSerializer>) -> String {
         return "conflict".to_string();
     }
 
+    let new_password_hash = UserModel::make_password_hash(user.password.as_str());
     let new_user = NewUser {
         email: user.email.clone(),
-        password_hash: argon2i_simple(user.password.as_str(), "login"),
+        password_hash: new_password_hash,
     };
 
     diesel::insert(&new_user)
