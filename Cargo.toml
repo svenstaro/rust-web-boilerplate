@@ -11,12 +11,13 @@ rocket = "0.2"
 rocket_codegen = "0.2"
 diesel = { version = "0.10", features = ["postgres", "uuid", "chrono", "serde_json"] }
 diesel_codegen = { version = "0.10", features = ["postgres"] }
+r2d2 = "0.7.1"
 r2d2-diesel = "0.10"
 dotenv = "0.8.0"
 serde = "0.9"
 serde_json = "0.9"
 serde_derive = "0.9"
-# lazy_static = "0.2"
+lazy_static = "0.2"
 validator = "0.4"
 validator_derive = "0.4"
 jsonwebtoken = { git = "https://github.com/Keats/rust-jwt.git" }

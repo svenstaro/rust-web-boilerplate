@@ -4,18 +4,16 @@ use validation::user::UserSerializer;
 use diesel::prelude::*;
 use diesel;
 
-use helpers::db::establish_connection;
 use models::user::{UserModel, NewUser};
 use schema::users;
 use schema::users::dsl::*;
+use helpers::db::DB;
 
 
 #[post("/login", data = "<user_in>", format = "application/json")]
-pub fn login(user_in: JSON<UserSerializer>) -> String {
-    let connection = establish_connection();
-
+pub fn login(user_in: JSON<UserSerializer>, db: DB) -> String {
     let results = users.filter(email.eq(user_in.email.clone()))
-        .first::<UserModel>(&connection);
+        .first::<UserModel>(db.conn());
 
     if results.is_err() {
         return "404".to_string();
@@ -30,11 +28,9 @@ pub fn login(user_in: JSON<UserSerializer>) -> String {
 }
 
 #[post("/register", data = "<user>", format = "application/json")]
-pub fn register(user: JSON<UserSerializer>) -> String {
-    let connection = establish_connection();
-
+pub fn register(user: JSON<UserSerializer>, db: DB) -> String {
     let results = users.filter(email.eq(user.email.clone()))
-        .first::<UserModel>(&connection);
+        .first::<UserModel>(db.conn());
     if results.is_ok() {
         return "conflict".to_string();
     }
@@ -47,7 +43,7 @@ pub fn register(user: JSON<UserSerializer>) -> String {
 
     diesel::insert(&new_user)
         .into(users::table)
-        .execute(&connection)
+        .execute(db.conn())
         .expect("Error saving new post");
     "lol".to_string()
 }

@@ -5,7 +5,7 @@ use argon2rs::argon2i_simple;
 use diesel::prelude::*;
 
 use schema::users;
-use helpers::db::establish_connection;
+use helpers::db::DB_POOL;
 
 #[derive(Queryable)]
 pub struct UserModel {
@@ -63,9 +63,9 @@ impl UserModel {
 
         let token = decrypted_token.unwrap();
 
-        let connection = establish_connection();
+        let connection = DB_POOL.get().unwrap();
         let user = users.filter(id.eq(token.claims.user_id))
-            .first::<UserModel>(&connection);
+            .first::<UserModel>(&*connection);
         if user.is_err() {
             return None;
         }
