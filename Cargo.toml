@@ -5,7 +5,7 @@ authors = ["Sven-Hendrik Haase <svenstaro@gmail.com>"]
 
 [dependencies]
 uuid = { version = "0.4", features = ["use_std", "serde", "v4", "rustc-serialize"] }
-chrono = "0.2"
+chrono = { version = "0.3", features = ["serde"] }
 argon2rs = "0.2"
 rocket = "0.2"
 rocket_codegen = "0.2"
@@ -20,10 +20,15 @@ serde_derive = "0.9"
 lazy_static = "0.2"
 validator = "0.4"
 validator_derive = "0.4"
-jsonwebtoken = { git = "https://github.com/Keats/rust-jwt.git" }
+jsonwebtoken = "1.1.6"
 rustc-serialize = "0.3"
 
 [dependencies.rocket_contrib]
 version = "0.2"
 default-features = false
 features = ["json"]
+
+[replace]
+"diesel:0.10.1" = { git = 'https://github.com/diesel-rs/diesel.git' }
+"diesel_infer_schema:0.10.1" = { git = 'https://github.com/diesel-rs/diesel.git' }
+"diesel_codegen:0.10.1" = { git = 'https://github.com/diesel-rs/diesel.git' }

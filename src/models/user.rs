@@ -7,7 +7,7 @@ use diesel::prelude::*;
 use schema::users;
 use helpers::db::DB_POOL;
 
-#[derive(Queryable)]
+#[derive(Debug, Serialize, Deserialize, Queryable)]
 pub struct UserModel {
     pub id: Uuid,
     pub created_at: NaiveDateTime,

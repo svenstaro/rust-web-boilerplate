@@ -6,38 +6,27 @@ use r2d2::GetTimeout;
 
 use models::user::UserModel;
 use helpers::db::{DB_POOL, DB};
+use responses::{APIResponse, bad_request, unauthorized, forbidden, not_found};
 
 
 #[error(400)]
-fn bad_request() -> JSON<Value> {
-    JSON(json!({
-        "status": "error",
-        "reason": "Bad request."
-    }))
+fn bad_request_handler() -> APIResponse {
+    bad_request()
 }
 
 #[error(401)]
-fn unauthorized() -> JSON<Value> {
-    JSON(json!({
-        "status": "error",
-        "reason": "Unauthorized."
-    }))
+fn unauthorized_handler() -> APIResponse {
+    unauthorized()
 }
 
 #[error(403)]
-fn forbidden() -> JSON<Value> {
-    JSON(json!({
-        "status": "error",
-        "reason": "Forbidden."
-    }))
+fn forbidden_handler() -> APIResponse {
+    forbidden()
 }
 
 #[error(404)]
-fn not_found() -> JSON<Value> {
-    JSON(json!({
-        "status": "error",
-        "reason": "Not found."
-    }))
+fn not_found_handler() -> APIResponse {
+    not_found()
 }
 
 impl<'a, 'r> FromRequest<'a, 'r> for UserModel {
@@ -60,11 +49,11 @@ impl<'a, 'r> FromRequest<'a, 'r> for UserModel {
 }
 
 impl<'a, 'r> FromRequest<'a, 'r> for DB {
-	type Error = GetTimeout;
-	fn from_request(_: &'a Request<'r>) -> request::Outcome<Self, Self::Error> {
-		match DB_POOL.get() {
-			Ok(conn) => Outcome::Success(DB(conn)),
-			Err(e) => Outcome::Failure((Status::InternalServerError, e)),
-		}
-	}
+    type Error = GetTimeout;
+    fn from_request(_: &'a Request<'r>) -> request::Outcome<Self, Self::Error> {
+        match DB_POOL.get() {
+            Ok(conn) => Outcome::Success(DB(conn)),
+            Err(e) => Outcome::Failure((Status::InternalServerError, e)),
+        }
+    }
 }

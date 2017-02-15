@@ -34,7 +34,7 @@ fn main() {
 			   api::auth::login,
 			   api::auth::register,
 		])
-		.catch(errors![handlers::bad_request, handlers::unauthorized,
-					   handlers::forbidden, handlers::not_found])
+		.catch(errors![handlers::bad_request_handler, handlers::unauthorized_handler,
+					   handlers::forbidden_handler, handlers::not_found_handler])
 		.launch();
 }
