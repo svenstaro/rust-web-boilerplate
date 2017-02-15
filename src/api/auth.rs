@@ -7,24 +7,24 @@ use models::user::{UserModel, NewUser};
 use schema::users;
 use schema::users::dsl::*;
 use helpers::db::DB;
-use responses::{APIResponse, ok, created, conflict};
+use responses::{APIResponse, ok, created, conflict, unauthorized};
 
 
 #[post("/login", data = "<user_in>", format = "application/json")]
-pub fn login(user_in: JSON<UserSerializer>, db: DB) -> String {
+pub fn login(user_in: JSON<UserSerializer>, db: DB) -> APIResponse {
     let results = users.filter(email.eq(user_in.email.clone()))
         .first::<UserModel>(db.conn());
 
     if results.is_err() {
-        return "404".to_string();
+        return unauthorized().message("Username or password incorrect.");
     }
 
     let user = results.unwrap();
     if !user.verify_password(user_in.password.as_str()) {
-        return "no login".to_string();
+        return unauthorized().message("Username or password incorrect.");
     }
 
-    user.generate_auth_token("loginsalt")
+    ok().data(json!(user.generate_auth_token("loginsalt")))
 }
 
 #[post("/register", data = "<user>", format = "application/json")]

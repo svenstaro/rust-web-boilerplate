@@ -41,7 +41,7 @@ impl<'r> Responder<'r> for APIResponse {
 
 pub fn ok() -> APIResponse {
     APIResponse {
-        message: None,
+        message: Some("Ok".to_string()),
         data: None,
         status: Status::Ok,
     }
@@ -49,7 +49,7 @@ pub fn ok() -> APIResponse {
 
 pub fn created() -> APIResponse {
     APIResponse {
-        message: None,
+        message: Some("Created".to_string()),
         data: None,
         status: Status::Created,
     }
@@ -57,7 +57,7 @@ pub fn created() -> APIResponse {
 
 pub fn accepted() -> APIResponse {
     APIResponse {
-        message: None,
+        message: Some("Accepted".to_string()),
         data: None,
         status: Status::Accepted,
     }
@@ -65,7 +65,7 @@ pub fn accepted() -> APIResponse {
 
 pub fn no_content() -> APIResponse {
     APIResponse {
-        message: None,
+        message: Some("No Content".to_string()),
         data: None,
         status: Status::NoContent,
     }
@@ -74,7 +74,7 @@ pub fn no_content() -> APIResponse {
 
 pub fn bad_request() -> APIResponse {
     APIResponse {
-        message: None,
+        message: Some("Bad Request".to_string()),
         data: None,
         status: Status::NoContent,
     }
@@ -82,7 +82,7 @@ pub fn bad_request() -> APIResponse {
 
 pub fn unauthorized() -> APIResponse {
     APIResponse {
-        message: None,
+        message: Some("Unauthorized".to_string()),
         data: None,
         status: Status::Unauthorized,
     }
@@ -90,7 +90,7 @@ pub fn unauthorized() -> APIResponse {
 
 pub fn forbidden() -> APIResponse {
     APIResponse {
-        message: None,
+        message: Some("Forbidden".to_string()),
         data: None,
         status: Status::Forbidden,
     }
@@ -98,7 +98,7 @@ pub fn forbidden() -> APIResponse {
 
 pub fn not_found() -> APIResponse {
     APIResponse {
-        message: None,
+        message: Some("Not Found".to_string()),
         data: None,
         status: Status::NotFound,
     }
@@ -106,7 +106,7 @@ pub fn not_found() -> APIResponse {
 
 pub fn method_not_allowed() -> APIResponse {
     APIResponse {
-        message: None,
+        message: Some("Method Not Allowed".to_string()),
         data: None,
         status: Status::MethodNotAllowed,
     }
@@ -114,7 +114,7 @@ pub fn method_not_allowed() -> APIResponse {
 
 pub fn conflict() -> APIResponse {
     APIResponse {
-        message: None,
+        message: Some("Conflict".to_string()),
         data: None,
         status: Status::Conflict,
     }
@@ -122,7 +122,7 @@ pub fn conflict() -> APIResponse {
 
 pub fn unprocessable_entity() -> APIResponse {
     APIResponse {
-        message: None,
+        message: Some("Unprocessable Entity".to_string()),
         data: None,
         status: Status::UnprocessableEntity,
     }
