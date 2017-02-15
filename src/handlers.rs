@@ -46,13 +46,3 @@ impl<'a, 'r> FromRequest<'a, 'r> for UserModel {
         return Outcome::Failure((Status::Unauthorized, ()));
     }
 }
-
-impl<'a, 'r> FromRequest<'a, 'r> for DB {
-    type Error = GetTimeout;
-    fn from_request(_: &'a Request<'r>) -> request::Outcome<Self, Self::Error> {
-        match DB_POOL.get() {
-            Ok(conn) => Outcome::Success(DB(conn)),
-            Err(e) => Outcome::Failure((Status::InternalServerError, e)),
-        }
-    }
-}
