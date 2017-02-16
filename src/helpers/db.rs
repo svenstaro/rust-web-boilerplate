@@ -1,10 +1,15 @@
 use std::ops::Deref;
+use rocket::http::Status;
+use rocket::{Request, State, Outcome};
+use rocket::request::{self, FromRequest};
 use diesel::pg::PgConnection;
 use r2d2;
 use r2d2_diesel::ConnectionManager;
 use std::env;
 
-pub fn init_db_pool() -> r2d2::Pool<ConnectionManager<PgConnection>> {
+pub type Pool = r2d2::Pool<ConnectionManager<PgConnection>>;
+
+pub fn init_db_pool() -> Pool {
     let config = r2d2::Config::default();
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
     let manager = ConnectionManager::<PgConnection>::new(database_url);
@@ -21,10 +26,10 @@ impl Deref for DB {
     }
 }
 
-impl<'a, 'r> FromRequest<'a, 'r> for Conn {
+impl<'a, 'r> FromRequest<'a, 'r> for DB {
     type Error = ();
 
-    fn from_request(request: &'a Request<'r>) -> request::Outcome<Conn, ()> {
+    fn from_request(request: &'a Request<'r>) -> request::Outcome<DB, ()> {
         let pool = match <State<Pool> as FromRequest>::from_request(request) {
             Outcome::Success(pool) => pool,
             Outcome::Failure(e) => return Outcome::Failure(e),
@@ -32,7 +37,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for Conn {
         };
 
         match pool.get() {
-            Ok(conn) => Outcome::Success(Conn(conn)),
+            Ok(conn) => Outcome::Success(DB(conn)),
             Err(_) => Outcome::Failure((Status::ServiceUnavailable, ()))
         }
     }

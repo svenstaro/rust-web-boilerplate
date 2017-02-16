@@ -28,13 +28,15 @@ mod helpers;
 
 fn main() {
     rocket::ignite()
-        .manage(db::init_db_pool())
+        .manage(helpers::db::init_db_pool())
         .mount("/api/hello/", routes![api::hello::whoami])
         .mount("/api/auth/", routes![
                api::auth::login,
                api::auth::register,
         ])
         .catch(errors![handlers::bad_request_handler, handlers::unauthorized_handler,
-                       handlers::forbidden_handler, handlers::not_found_handler])
+                       handlers::forbidden_handler, handlers::not_found_handler,
+                       handlers::internal_server_error_handler,
+                       handlers::service_unavailable_handler])
         .launch();
 }

@@ -2,10 +2,11 @@ use uuid::Uuid;
 use chrono::NaiveDateTime;
 use jsonwebtoken::{encode, decode, Header, Algorithm};
 use argon2rs::argon2i_simple;
+use diesel::pg::PgConnection;
 use diesel::prelude::*;
 
 use schema::users;
-use helpers::db::DB_POOL;
+use helpers::db::DB;
 
 #[derive(Debug, Serialize, Deserialize, Queryable)]
 pub struct UserModel {
@@ -46,7 +47,7 @@ impl UserModel {
             .unwrap()
     }
 
-    pub fn get_user_from_auth_token(token: &str, salt: &str) -> Option<UserModel> {
+    pub fn get_user_from_auth_token(token: &str, salt: &str, db: &PgConnection) -> Option<UserModel> {
         use schema::users::dsl::*;
 
         // TODO: Fetch secret from config.
@@ -63,9 +64,8 @@ impl UserModel {
 
         let token = decrypted_token.unwrap();
 
-        let connection = DB_POOL.get().unwrap();
         let user = users.filter(id.eq(token.claims.user_id))
-            .first::<UserModel>(&*connection);
+            .first::<UserModel>(&*db);
         if user.is_err() {
             return None;
         }

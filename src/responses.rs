@@ -127,3 +127,19 @@ pub fn unprocessable_entity() -> APIResponse {
         status: Status::UnprocessableEntity,
     }
 }
+
+pub fn internal_server_error() -> APIResponse {
+    APIResponse {
+        message: Some("Internal Server Error".to_string()),
+        data: None,
+        status: Status::InternalServerError,
+    }
+}
+
+pub fn service_unavailable() -> APIResponse {
+    APIResponse {
+        message: Some("Service Unavailable".to_string()),
+        data: None,
+        status: Status::ServiceUnavailable,
+    }
+}

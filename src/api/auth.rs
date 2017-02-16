@@ -2,6 +2,7 @@ use rocket_contrib::{JSON, Value};
 use validation::user::UserSerializer;
 use diesel::prelude::*;
 use diesel;
+use diesel::pg::PgConnection;
 
 use models::user::{UserModel, NewUser};
 use schema::users;
@@ -13,7 +14,7 @@ use responses::{APIResponse, ok, created, conflict, unauthorized};
 #[post("/login", data = "<user_in>", format = "application/json")]
 pub fn login(user_in: JSON<UserSerializer>, db: DB) -> APIResponse {
     let results = users.filter(email.eq(user_in.email.clone()))
-        .first::<UserModel>(db.conn());
+        .first::<UserModel>(&*db);
 
     if results.is_err() {
         return unauthorized().message("Username or password incorrect.");
@@ -30,7 +31,7 @@ pub fn login(user_in: JSON<UserSerializer>, db: DB) -> APIResponse {
 #[post("/register", data = "<user>", format = "application/json")]
 pub fn register(user: JSON<UserSerializer>, db: DB) -> APIResponse {
     let results = users.filter(email.eq(user.email.clone()))
-        .first::<UserModel>(db.conn());
+        .first::<UserModel>(&*db);
     if results.is_ok() {
         return conflict().message("User already exists.");
     }
@@ -43,7 +44,7 @@ pub fn register(user: JSON<UserSerializer>, db: DB) -> APIResponse {
 
     let user = diesel::insert(&new_user)
         .into(users::table)
-        .get_result::<UserModel>(db.conn())
+        .get_result::<UserModel>(&*db)
         .expect("Error saving new post");
 
     created().message("User created.").data(json!(&user))
