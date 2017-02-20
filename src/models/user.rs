@@ -7,6 +7,7 @@ use diesel::prelude::*;
 
 use schema::users;
 use helpers::db::DB;
+use helpers::util;
 
 #[derive(Debug, Serialize, Deserialize, Queryable)]
 pub struct UserModel {
@@ -35,8 +36,7 @@ impl UserModel {
     }
 
     pub fn generate_auth_token(&self, salt: &str) -> String {
-        // TODO: Fetch secret from config.
-        let secret = String::from("lolsecret");
+        let secret = util::get_secret();
 
         // TODO: This is probably not a good way to do that.
         let combined_secret = secret + salt;
@@ -50,8 +50,7 @@ impl UserModel {
     pub fn get_user_from_auth_token(token: &str, salt: &str, db: &PgConnection) -> Option<UserModel> {
         use schema::users::dsl::*;
 
-        // TODO: Fetch secret from config.
-        let secret = String::from("lolsecret");
+        let secret = util::get_secret();
 
         // TODO: This is probably not a good way to do that.
         let combined_secret = secret + salt;
