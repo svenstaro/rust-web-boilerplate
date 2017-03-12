@@ -3,11 +3,23 @@ name = "rust-web-boilerplate"
 version = "0.1.0"
 authors = ["Sven-Hendrik Haase <svenstaro@gmail.com>"]
 
+[lib]
+name = "rust_web_boilerplate"
+path = "src/lib.rs"
+
+[[bin]]
+name = "rust_web_boilerplate_runner"
+path = "src/main.rs"
+
+[[test]]
+name = "tests"
+path = "tests/lib.rs"
+
 [dependencies]
 uuid = { version = "0.4", features = ["use_std", "serde", "v4", "rustc-serialize"] }
 chrono = { version = "0.3", features = ["serde"] }
 argon2rs = "0.2"
-rocket = "0.2"
+rocket = { version = "0.2", features = ["testing"] }
 rocket_codegen = "0.2"
 diesel = { version = "0.11", features = ["postgres", "uuid", "chrono", "serde_json"] }
 diesel_codegen = { version = "0.11", features = ["postgres"] }
@@ -22,6 +34,10 @@ validator = "0.4"
 validator_derive = "0.4"
 jsonwebtoken = "1.1.6"
 rustc-serialize = "0.3"
+
+[dev-dependencies]
+quickcheck = "0.4"
+stainless = "0.1"
 
 [dependencies.rocket_contrib]
 version = "0.2"
