@@ -9,4 +9,4 @@ matrix:
   allow_failures:
     - rust: [stable, beta]
 before_script:
-  - reset.sh
+  - ./reset.sh
