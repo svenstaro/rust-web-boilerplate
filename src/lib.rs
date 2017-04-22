@@ -25,9 +25,10 @@ mod handlers;
 mod responses;
 mod helpers;
 
-pub fn rocket_factory() -> rocket::Rocket {
-    rocket::ignite()
-        .manage(helpers::db::init_db_pool())
+pub fn rocket_factory() -> (rocket::Rocket, helpers::db::Pool) {
+    let mut db_pool = helpers::db::init_db_pool();
+    let mut rocket = rocket::ignite()
+        .manage(db_pool.clone())
         .mount("/api/hello/", routes![api::hello::whoami])
         .mount("/api/auth/", routes![
                api::auth::login,
@@ -36,5 +37,6 @@ pub fn rocket_factory() -> rocket::Rocket {
         .catch(errors![handlers::bad_request_handler, handlers::unauthorized_handler,
                        handlers::forbidden_handler, handlers::not_found_handler,
                        handlers::internal_server_error_handler,
-                       handlers::service_unavailable_handler])
+                       handlers::service_unavailable_handler]);
+    (rocket, db_pool)
 }

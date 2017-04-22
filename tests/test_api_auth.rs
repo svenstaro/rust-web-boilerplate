@@ -2,16 +2,20 @@ use rocket::testing::MockRequest;
 use rocket::http::{Status, Method};
 use rocket::http::ContentType;
 use rust_web_boilerplate::rocket_factory;
+use diesel::Connection;
+use diesel::result::Error;
 
 describe! auth_tests {
     before_each {
-        let rocket = rocket_factory();
-        // start transaction
+        let (rocket, db) = rocket_factory();
+        let conn = db.get().unwrap();
+        conn.begin_test_transaction().unwrap();
     }
 
     after_each {
-        // end transaction
-    }
+        let conn = db.get().unwrap();
+        Err(Error::RollbackTransaction)
+    };
 
     describe! register {
         it "allows users to register" {
