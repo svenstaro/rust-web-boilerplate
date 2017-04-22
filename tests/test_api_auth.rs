@@ -6,6 +6,11 @@ use rust_web_boilerplate::rocket_factory;
 describe! auth_tests {
     before_each {
         let rocket = rocket_factory();
+        // start transaction
+    }
+
+    after_each {
+        // end transaction
     }
 
     describe! register {
