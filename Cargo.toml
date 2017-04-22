@@ -21,10 +21,10 @@ chrono = { version = "0.3", features = ["serde"] }
 argon2rs = "0.2"
 rocket = { version = "0.2", features = ["testing"] }
 rocket_codegen = "0.2"
-diesel = { version = "0.11", features = ["postgres", "uuid", "chrono", "serde_json"] }
-diesel_codegen = { version = "0.11", features = ["postgres"] }
-r2d2 = "0.7.1"
-r2d2-diesel = "0.11"
+diesel = { version = "0.12", features = ["postgres", "uuid", "chrono", "serde_json"] }
+diesel_codegen = { version = "0.12", features = ["postgres"] }
+r2d2 = "0.7"
+r2d2-diesel = "0.12"
 # dotenv = "0.8.0" TODO Make use of this later.
 serde = "0.9"
 serde_json = "0.9"
