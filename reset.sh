@@ -1,4 +1,4 @@
 #!/bin/bash
 
-dropdb boilerplateapp || true
+dropdb --if-exists boilerplateapp
 diesel setup
