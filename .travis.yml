@@ -1,6 +1,6 @@
 language: rust
 env:
-  - DATABASE_URL=postgres://localhost/postgres
+  - DATABASE_URL=postgres://localhost/boilerplateapp
 services:
   - postgresql
 rust:
@@ -8,3 +8,5 @@ rust:
 matrix:
   allow_failures:
     - rust: [stable, beta]
+before_script:
+  - reset.sh
