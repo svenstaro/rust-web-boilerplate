@@ -1,4 +1,8 @@
 language: rust
+env:
+  - DATABASE_URL=postgres://localhost/postgres
+services:
+  - postgresql
 rust:
   - nightly
 matrix:
