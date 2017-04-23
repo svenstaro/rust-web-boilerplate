@@ -1,4 +1,5 @@
 use uuid::Uuid;
+
 use chrono::NaiveDateTime;
 use jsonwebtoken::{encode, decode, Header, Algorithm};
 use argon2rs::argon2i_simple;
@@ -15,7 +16,7 @@ pub struct UserModel {
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
     pub email: String,
-    pub password_hash: String,
+    pub password_hash: Vec<u8>,
 }
 
 #[derive(Debug, RustcEncodable, RustcDecodable)]
@@ -24,15 +25,14 @@ struct UserLoginToken {
 }
 
 impl UserModel {
-    pub fn make_password_hash(new_password: &str) -> String {
-        let password_hash = argon2i_simple(new_password, "loginsalt");
-        String::from_utf8_lossy(&password_hash).into_owned()
+
+    pub fn make_password_hash(new_password: &str) -> Vec<u8> {
+        argon2i_simple(new_password, "loginsalt").to_vec()
     }
 
     pub fn verify_password(&self, candidate_password: &str) -> bool {
-        let candidate_password = argon2i_simple(candidate_password, "loginsalt");
-        let candidate_password_string = String::from_utf8_lossy(&candidate_password);
-        self.password_hash == candidate_password_string
+        let candidate_hash = argon2i_simple(candidate_password, "loginsalt").to_vec();
+        self.password_hash == candidate_hash
     }
 
     pub fn generate_auth_token(&self, salt: &str) -> String {
@@ -44,7 +44,7 @@ impl UserModel {
         encode(Header::default(),
                &UserLoginToken { user_id: self.id },
                combined_secret.as_bytes())
-            .unwrap()
+                .unwrap()
     }
 
     pub fn get_user_from_auth_token(token: &str, salt: &str, db: &PgConnection) -> Option<UserModel> {
@@ -77,5 +77,5 @@ impl UserModel {
 #[table_name="users"]
 pub struct NewUser {
     pub email: String,
-    pub password_hash: String,
+    pub password_hash: Vec<u8>,
 }
