@@ -11,3 +11,6 @@ matrix:
 before_script:
   - cargo install diesel_cli
   - ./reset.sh
+script:
+  - cargo build --verbose
+  - cargo test --verbose -- --test-threads=1 # See watch.sh for why 1 thread
