@@ -10,7 +10,6 @@ extern crate validator;
 #[macro_use] extern crate validator_derive;
 #[macro_use] extern crate diesel;
 #[macro_use] extern crate diesel_codegen;
-extern crate jsonwebtoken;
 extern crate chrono;
 extern crate argon2rs;
 extern crate rustc_serialize;

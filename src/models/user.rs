@@ -1,7 +1,6 @@
 use uuid::Uuid;
 
 use chrono::NaiveDateTime;
-use jsonwebtoken::{encode, decode, Header, Algorithm};
 use argon2rs::argon2i_simple;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
@@ -17,6 +16,8 @@ pub struct UserModel {
     pub updated_at: NaiveDateTime,
     pub email: String,
     pub password_hash: Vec<u8>,
+    pub current_auth_hash: String,
+    pub last_action: NaiveDateTime,
 }
 
 #[derive(Debug, RustcEncodable, RustcDecodable)]
