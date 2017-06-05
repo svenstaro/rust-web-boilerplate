@@ -16,28 +16,32 @@ name = "tests"
 path = "tests/lib.rs"
 
 [dependencies]
-uuid = { version = "0.4", features = ["use_std", "serde", "v4", "rustc-serialize"] }
+uuid = { version = "0.5", features = ["use_std", "serde", "v4"] }
 chrono = { version = "0.3", features = ["serde"] }
 argon2rs = "0.2"
-rocket = { version = "0.2", features = ["testing"] }
-rocket_codegen = "0.2"
-diesel = { version = "0.12", features = ["postgres", "uuid", "chrono", "serde_json"] }
-diesel_codegen = { version = "0.12", features = ["postgres"] }
+rocket = { git = "https://github.com/SergioBenitez/Rocket.git" }
+rocket_codegen = { git = "https://github.com/SergioBenitez/Rocket.git" }
+# rocket = { version = "0.3", features = ["testing"] }
+# rocket_codegen = "0.3"
+diesel = { version = "0.13", features = ["postgres", "uuid", "chrono", "serde_json"] }
+diesel_codegen = { version = "0.13", features = ["postgres"] }
 r2d2 = "0.7"
-r2d2-diesel = "0.12"
+r2d2-diesel = "0.13"
 # dotenv = "0.8.0" TODO Make use of this later.
-serde = "0.9"
-serde_json = "0.9"
-serde_derive = "0.9"
+serde = "1"
+serde_json = "1"
+serde_derive = "1"
 lazy_static = "0.2"
 validator = "0.4"
-validator_derive = "0.4"
+validator_derive = "0.5"
+ring = "0.9"
 
 [dev-dependencies]
 quickcheck = "0.4"
 stainless = "0.1"
 
 [dependencies.rocket_contrib]
-version = "0.2"
+# version = "0.3"
+git = "https://github.com/SergioBenitez/Rocket.git"
 default-features = false
 features = ["json"]

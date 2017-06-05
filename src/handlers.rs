@@ -49,9 +49,9 @@ impl<'a, 'r> FromRequest<'a, 'r> for UserModel {
             return Outcome::Failure((Status::Unauthorized, ()));
         }
 
-        let token = tokens[0];
+        let login_token = tokens[0];
 
-        match UserModel::get_user_from_auth_token(&token, "loginsalt", &*db) {
+        match UserModel::get_user_from_login_token(&login_token, &*db) {
             Some(user) => Outcome::Success(user),
             None => Outcome::Failure((Status::Unauthorized, ())),
         }

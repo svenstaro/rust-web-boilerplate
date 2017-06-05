@@ -4,10 +4,10 @@ use chrono::NaiveDateTime;
 use argon2rs::argon2i_simple;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
+use ring::constant_time::verify_slices_are_equal;
 
 use schema::users;
 use helpers::db::DB;
-use helpers::util;
 
 #[derive(Debug, Serialize, Deserialize, Queryable)]
 pub struct UserModel {
@@ -16,11 +16,18 @@ pub struct UserModel {
     pub updated_at: NaiveDateTime,
     pub email: String,
     pub password_hash: Vec<u8>,
-    pub current_auth_hash: String,
-    pub last_action: NaiveDateTime,
+    pub current_auth_token: Option<String>,
+    pub last_action: Option<NaiveDateTime>,
 }
 
-#[derive(Debug, RustcEncodable, RustcDecodable)]
+#[derive(Insertable)]
+#[table_name="users"]
+pub struct NewUser {
+    pub email: String,
+    pub password_hash: Vec<u8>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 struct UserLoginToken {
     user_id: Uuid,
 }
@@ -37,46 +44,26 @@ impl UserModel {
     }
 
     pub fn generate_auth_token(&self, salt: &str) -> String {
-        let secret = util::get_secret();
-
-        // TODO: This is probably not a good way to do that.
-        let combined_secret = secret + salt;
-
-        encode(Header::default(),
-               &UserLoginToken { user_id: self.id },
-               combined_secret.as_bytes())
-                .unwrap()
+        "TODO".to_owned()
     }
 
-    pub fn get_user_from_auth_token(token: &str, salt: &str, db: &PgConnection) -> Option<UserModel> {
+    /// Get a `User` from a login token.
+    ///
+    /// A login token has this format:
+    ///     <user uuid>:<auth token>
+    pub fn get_user_from_login_token(token: &str, db: &PgConnection) -> Option<UserModel> {
         use schema::users::dsl::*;
 
-        let secret = util::get_secret();
+        // let (user_id, auth_token) = token.split(':').collect();
 
-        // TODO: This is probably not a good way to do that.
-        let combined_secret = secret + salt;
-
-        let decrypted_token =
-            decode::<UserLoginToken>(&token, combined_secret.as_bytes(), Algorithm::HS256);
-        if decrypted_token.is_err() {
-            return None;
-        }
-
-        let token = decrypted_token.unwrap();
-
-        let user = users.filter(id.eq(token.claims.user_id))
-            .first::<UserModel>(&*db);
-        if user.is_err() {
-            return None;
-        }
-
-        Some(user.unwrap())
+        // let user = users.filter(id.eq(user_id)).first::<UserModel>(&*db).optional();
+        // if let Some(user) = user {
+        //     if user.current_auth_token {
+        //         if verify_slices_are_equal(user.current_auth_token, auth_token).is_ok() {
+        //             return Some(user.unwrap());
+        //         }
+        //     }
+        // }
+        return None;
     }
-}
-
-#[derive(Insertable)]
-#[table_name="users"]
-pub struct NewUser {
-    pub email: String,
-    pub password_hash: Vec<u8>,
 }

@@ -12,9 +12,9 @@ extern crate validator;
 #[macro_use] extern crate diesel_codegen;
 extern crate chrono;
 extern crate argon2rs;
-extern crate rustc_serialize;
 extern crate r2d2;
 extern crate r2d2_diesel;
+extern crate ring;
 
 mod api;
 mod validation;
