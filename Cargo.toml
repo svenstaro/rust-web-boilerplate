@@ -31,7 +31,6 @@ r2d2-diesel = "0.13"
 serde = "1"
 serde_json = "1"
 serde_derive = "1"
-lazy_static = "0.2"
 validator = "0.4"
 validator_derive = "0.5"
 ring = "0.9"
@@ -39,6 +38,7 @@ ring = "0.9"
 [dev-dependencies]
 quickcheck = "0.4"
 stainless = "0.1"
+parking_lot = {version = "0.4", features = ["nightly"]}
 
 [dependencies.rocket_contrib]
 # version = "0.3"

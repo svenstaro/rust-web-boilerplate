@@ -16,20 +16,20 @@ extern crate r2d2;
 extern crate r2d2_diesel;
 extern crate ring;
 
-mod api;
-mod validation;
-mod models;
-mod schema;
-mod handlers;
-mod responses;
-mod helpers;
+pub mod api;
+pub mod validation;
+pub mod models;
+pub mod schema;
+pub mod handlers;
+pub mod responses;
+pub mod helpers;
 
 pub fn rocket_factory() -> (rocket::Rocket, helpers::db::Pool) {
     let mut db_pool = helpers::db::init_db_pool();
     let mut rocket = rocket::ignite()
         .manage(db_pool.clone())
-        .mount("/api/hello/", routes![api::hello::whoami])
-        .mount("/api/auth/", routes![
+        .mount("/hello/", routes![api::hello::whoami])
+        .mount("/auth/", routes![
                api::auth::login,
                api::auth::register,
         ])

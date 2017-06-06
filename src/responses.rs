@@ -6,31 +6,27 @@ use rocket::http::{Status, ContentType};
 
 #[derive(Debug)]
 pub struct APIResponse {
-    message: Option<String>,
-    data: Option<Value>,
+    data: Value,
     status: Status,
 }
 
 impl APIResponse {
-    /// Change the message of the `Response`.
-    pub fn message(mut self, message: &str) -> APIResponse {
-        self.message = Some(message.to_string());
+    /// Set the data of the `Response` to `data`.
+    pub fn data(mut self, data: Value) -> APIResponse {
+        self.data = data;
         self
     }
 
-    /// Change the data to the `Response`.
-    pub fn data(mut self, data: Value) -> APIResponse {
-        self.data = Some(data);
+    /// Convenience method to set `self.data` to `{"message": message}`.
+    pub fn message(mut self, message: &str) -> APIResponse {
+        self.data = json!({"message": message});
         self
     }
 }
 
 impl<'r> Responder<'r> for APIResponse {
     fn respond_to(self, req: &Request) -> Result<Response<'r>, Status> {
-        let body = json!({
-            "message": self.message,
-            "data": self.data,
-        });
+        let body = self.data;
 
         Response::build()
             .status(self.status)
@@ -42,105 +38,91 @@ impl<'r> Responder<'r> for APIResponse {
 
 pub fn ok() -> APIResponse {
     APIResponse {
-        message: Some("Ok".to_string()),
-        data: None,
+        data: json!(null),
         status: Status::Ok,
     }
 }
 
 pub fn created() -> APIResponse {
     APIResponse {
-        message: Some("Created".to_string()),
-        data: None,
+        data: json!(null),
         status: Status::Created,
     }
 }
 
 pub fn accepted() -> APIResponse {
     APIResponse {
-        message: Some("Accepted".to_string()),
-        data: None,
+        data: json!(null),
         status: Status::Accepted,
     }
 }
 
 pub fn no_content() -> APIResponse {
     APIResponse {
-        message: Some("No Content".to_string()),
-        data: None,
+        data: json!(null),
         status: Status::NoContent,
     }
 }
 
-
 pub fn bad_request() -> APIResponse {
     APIResponse {
-        message: Some("Bad Request".to_string()),
-        data: None,
+        data: json!({"message": "Bad Request"}),
         status: Status::BadRequest,
     }
 }
 
 pub fn unauthorized() -> APIResponse {
     APIResponse {
-        message: Some("Unauthorized".to_string()),
-        data: None,
+        data: json!({"message": "Unauthorized"}),
         status: Status::Unauthorized,
     }
 }
 
 pub fn forbidden() -> APIResponse {
     APIResponse {
-        message: Some("Forbidden".to_string()),
-        data: None,
+        data: json!({"message": "Forbidden"}),
         status: Status::Forbidden,
     }
 }
 
 pub fn not_found() -> APIResponse {
     APIResponse {
-        message: Some("Not Found".to_string()),
-        data: None,
+        data: json!({"message": "Not Found"}),
         status: Status::NotFound,
     }
 }
 
 pub fn method_not_allowed() -> APIResponse {
     APIResponse {
-        message: Some("Method Not Allowed".to_string()),
-        data: None,
+        data: json!({"message": "Method Not Allowed"}),
         status: Status::MethodNotAllowed,
     }
 }
 
 pub fn conflict() -> APIResponse {
     APIResponse {
-        message: Some("Conflict".to_string()),
-        data: None,
+        data: json!({"message": "Conflict"}),
         status: Status::Conflict,
     }
 }
 
 pub fn unprocessable_entity() -> APIResponse {
     APIResponse {
-        message: Some("Unprocessable Entity".to_string()),
-        data: None,
+        data: json!({"message": "Unprocessable Entity"}),
         status: Status::UnprocessableEntity,
     }
 }
 
 pub fn internal_server_error() -> APIResponse {
     APIResponse {
-        message: Some("Internal Server Error".to_string()),
-        data: None,
+        data: json!({"message": "Internal Server Error"}),
         status: Status::InternalServerError,
     }
 }
 
 pub fn service_unavailable() -> APIResponse {
     APIResponse {
-        message: Some("Service Unavailable".to_string()),
-        data: None,
+        data: json!({"message": "Service Unavailable"}),
         status: Status::ServiceUnavailable,
     }
 }

@@ -10,6 +10,9 @@ use helpers::db::DB;
 use responses::{APIResponse, ok, created, conflict, unauthorized};
 
 
+/// Log the user in and return a response with an auth token.
+///
+/// Return UNAUTHORIZED in case the user can't be found or if the password is incorrect.
 #[post("/login", data = "<user_in>", format = "application/json")]
 pub fn login(user_in: JSON<UserSerializer>, db: DB) -> APIResponse {
     let results = users.filter(email.eq(user_in.email.clone()))
@@ -27,6 +30,9 @@ pub fn login(user_in: JSON<UserSerializer>, db: DB) -> APIResponse {
     ok().data(json!(user.generate_auth_token("loginsalt")))
 }
 
+/// Register a new user using email and password.
+///
+/// Return CONFLICT is a user with the same email already exists.
 #[post("/register", data = "<user>", format = "application/json")]
 pub fn register(user: JSON<UserSerializer>, db: DB) -> APIResponse {
     let results = users.filter(email.eq(user.email.clone()))
@@ -46,5 +52,5 @@ pub fn register(user: JSON<UserSerializer>, db: DB) -> APIResponse {
         .get_result::<UserModel>(&*db)
         .expect("Error saving new post");
 
-    created().message("User created.").data(json!(&user))
+    created().data(json!(&user))
 }
