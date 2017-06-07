@@ -5,7 +5,6 @@ use diesel::pg::PgConnection;
 
 use rust_web_boilerplate::models::user::{UserModel, NewUser};
 use rust_web_boilerplate::schema::users;
-use rust_web_boilerplate::schema::users::dsl::*;
 
 /// Create a new `User` and add it to the database.
 ///
