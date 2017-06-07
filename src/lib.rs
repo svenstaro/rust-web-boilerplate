@@ -24,10 +24,20 @@ pub mod handlers;
 pub mod responses;
 pub mod helpers;
 
+use rocket::fairing::AdHoc;
+use chrono::Duration;
+
+pub struct RuntimeConfig(Duration);
+
 pub fn rocket_factory() -> (rocket::Rocket, helpers::db::Pool) {
-    let mut db_pool = helpers::db::init_db_pool();
-    let mut rocket = rocket::ignite()
+    let db_pool = helpers::db::init_db_pool();
+    let rocket = rocket::ignite()
         .manage(db_pool.clone())
+        .attach(AdHoc::on_attach(|rocket| {
+            let auth_timeout = rocket.config().get_int("auth_token_timeout_days").unwrap_or(7);
+            let auth_token_duration = Duration::days(auth_timeout);
+            Ok(rocket.manage(RuntimeConfig(auth_token_duration)))
+        }))
         .mount("/hello/", routes![api::hello::whoami])
         .mount("/auth/", routes![
                api::auth::login,

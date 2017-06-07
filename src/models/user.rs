@@ -1,15 +1,19 @@
+use std::fmt;
+
 use uuid::Uuid;
 
-use chrono::NaiveDateTime;
+use chrono::{DateTime, NaiveDateTime, UTC, Duration};
 use argon2rs::argon2i_simple;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use ring::constant_time::verify_slices_are_equal;
+use rocket::config::{self, ConfigError};
 
 use schema::users;
 use helpers::db::DB;
 
-#[derive(Debug, Serialize, Deserialize, Queryable)]
+#[derive(Debug, Serialize, Deserialize, Queryable, Identifiable, AsChangeset)]
+#[table_name = "users"]
 pub struct UserModel {
     pub id: Uuid,
     pub created_at: NaiveDateTime,
@@ -27,24 +31,41 @@ pub struct NewUser {
     pub password_hash: Vec<u8>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-struct UserLoginToken {
-    user_id: Uuid,
+impl fmt::Display for UserModel {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "<User {email}>", email=self.email)
+    }
 }
 
 impl UserModel {
-
-    pub fn make_password_hash(new_password: &str) -> Vec<u8> {
-        argon2i_simple(new_password, "loginsalt").to_vec()
+    /// Hash `password` using argon2 and return it.
+    pub fn make_password_hash(password: &str) -> Vec<u8> {
+        argon2i_simple(password, "loginsalt").to_vec()
     }
 
+    /// Verify that `candidate_password` matches the stored password.
     pub fn verify_password(&self, candidate_password: &str) -> bool {
         let candidate_hash = argon2i_simple(candidate_password, "loginsalt").to_vec();
         self.password_hash == candidate_hash
     }
 
-    pub fn generate_auth_token(&self, salt: &str) -> String {
-        "TODO".to_owned()
+    /// Generate an auth token and save it to the `current_auth_token` column.
+    pub fn generate_auth_token(&mut self, conn: &PgConnection) -> String {
+        let new_auth_token = Uuid::new_v4().hyphenated().to_string();
+        self.current_auth_token = Some(new_auth_token.clone());
+        self.last_action = Some(UTC::now().naive_utc());
+        self.save_changes::<UserModel>(conn);
+        new_auth_token
+    }
+
+    /// Return whether or not the user has a valid auth token.
+    pub fn has_valid_auth_token(&self, auth_token_timeout: Duration) -> bool {
+        let latest_valid_date = UTC::now() - auth_token_timeout;
+        if let Some(last_action) = self.last_action {
+            last_action > latest_valid_date.naive_utc()
+        } else {
+            false
+        }
     }
 
     /// Get a `User` from a login token.
@@ -54,16 +75,20 @@ impl UserModel {
     pub fn get_user_from_login_token(token: &str, db: &PgConnection) -> Option<UserModel> {
         use schema::users::dsl::*;
 
-        // let (user_id, auth_token) = token.split(':').collect();
+        let v: Vec<&str> = token.split(':').collect();
+        let (user_id, auth_token) = (Uuid::parse_str(v[0]).unwrap_or(Uuid::nil()), v[1]);
 
-        // let user = users.filter(id.eq(user_id)).first::<UserModel>(&*db).optional();
-        // if let Some(user) = user {
-        //     if user.current_auth_token {
-        //         if verify_slices_are_equal(user.current_auth_token, auth_token).is_ok() {
-        //             return Some(user.unwrap());
-        //         }
-        //     }
-        // }
+        let user = users
+            .filter(id.eq(user_id))
+            .first::<UserModel>(&*db)
+            .optional();
+        if let Ok(Some(u)) = user {
+            if let Some(token) = u.current_auth_token.clone() {
+                if verify_slices_are_equal(token.as_bytes(), auth_token.as_bytes()).is_ok() {
+                    return Some(u);
+                }
+            }
+        }
         return None;
     }
 }

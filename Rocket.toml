@@ -1,2 +1,2 @@
-[development]
-secret = "rofl"
+[global]
+auth_token_timeout_days = 30
