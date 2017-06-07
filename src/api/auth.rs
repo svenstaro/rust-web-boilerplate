@@ -8,7 +8,7 @@ use models::user::{UserModel, NewUser};
 use schema::users;
 use schema::users::dsl::*;
 use helpers::db::DB;
-use responses::{APIResponse, ok, created, conflict, unauthorized, internal_server_error};
+use responses::{APIResponse, ok, created, conflict, internal_server_error};
 use RuntimeConfig;
 
 
@@ -16,23 +16,32 @@ use RuntimeConfig;
 ///
 /// Return UNAUTHORIZED in case the user can't be found or if the password is incorrect.
 #[post("/login", data = "<user_in>", format = "application/json")]
-pub fn login(user_in: JSON<UserSerializer>, db: DB, rconfig: State<RuntimeConfig>) -> APIResponse {
-    let user = users
+pub fn login(user_in: JSON<UserSerializer>,
+             db: DB,
+             rconfig: State<RuntimeConfig>)
+             -> Result<APIResponse, APIResponse> {
+    let user_q = users
         .filter(email.eq(user_in.email.clone()))
         .first::<UserModel>(&*db)
         .optional()
-        .or(internal_server_error());
+        .or(Err(internal_server_error()))?;
 
     // For privacy reasons, we'll not provide the exact reason for failure here.
-    if let Some(u) = u {
-        return unauthorized().message("Username or password incorrect.");
-    }
-
+    let mut user = user_q
+        .ok_or(internal_server_error().message("Username or password incorrect."))?;
     if !user.verify_password(user_in.password.as_str()) {
-        return unauthorized().message("Username or password incorrect.");
+        return Err(internal_server_error().message("Username or password incorrect."));
     }
 
-    ok().data(json!({"token": user.generate_auth_token(&db)}))
+    let token = if user.has_valid_auth_token(rconfig.0) {
+        user.current_auth_token.ok_or(internal_server_error())?
+    } else {
+        user.generate_auth_token(&db)
+    };
+
+    Ok(ok().data(json!({
+                           "token": token
+                       })))
 }
 
 /// Register a new user using email and password.

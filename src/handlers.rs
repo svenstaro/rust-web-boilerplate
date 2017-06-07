@@ -1,7 +1,6 @@
 use rocket::Outcome;
 use rocket::http::Status;
 use rocket::request::{self, Request, FromRequest};
-use r2d2::GetTimeout;
 
 use models::user::UserModel;
 use helpers::db::DB;

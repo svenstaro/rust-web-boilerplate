@@ -25,7 +25,7 @@ impl APIResponse {
 }
 
 impl<'r> Responder<'r> for APIResponse {
-    fn respond_to(self, req: &Request) -> Result<Response<'r>, Status> {
+    fn respond_to(self, _req: &Request) -> Result<Response<'r>, Status> {
         let body = self.data;
 
         Response::build()

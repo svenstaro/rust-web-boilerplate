@@ -2,15 +2,13 @@ use std::fmt;
 
 use uuid::Uuid;
 
-use chrono::{DateTime, NaiveDateTime, UTC, Duration};
+use chrono::{NaiveDateTime, UTC, Duration};
 use argon2rs::argon2i_simple;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use ring::constant_time::verify_slices_are_equal;
-use rocket::config::{self, ConfigError};
 
 use schema::users;
-use helpers::db::DB;
 
 #[derive(Debug, Serialize, Deserialize, Queryable, Identifiable, AsChangeset)]
 #[table_name = "users"]
@@ -33,7 +31,7 @@ pub struct NewUser {
 
 impl fmt::Display for UserModel {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "<User {email}>", email=self.email)
+        write!(f, "<User {email}>", email = self.email)
     }
 }
 
@@ -62,7 +60,11 @@ impl UserModel {
     pub fn has_valid_auth_token(&self, auth_token_timeout: Duration) -> bool {
         let latest_valid_date = UTC::now() - auth_token_timeout;
         if let Some(last_action) = self.last_action {
-            last_action > latest_valid_date.naive_utc()
+            if self.current_auth_token.is_some() {
+                last_action > latest_valid_date.naive_utc()
+            } else {
+                false
+            }
         } else {
             false
         }
