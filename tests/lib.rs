@@ -11,5 +11,4 @@ extern crate serde_json;
 extern crate rust_web_boilerplate;
 
 mod factories;
-mod utils;
 mod test_api_auth;
