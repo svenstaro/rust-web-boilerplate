@@ -7,6 +7,7 @@ extern crate diesel;
 extern crate parking_lot;
 extern crate uuid;
 extern crate serde_json;
+#[macro_use] extern crate serde_derive;
 
 extern crate rust_web_boilerplate;
 
