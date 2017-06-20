@@ -11,10 +11,6 @@ path = "src/lib.rs"
 name = "rust_web_boilerplate_runner"
 path = "src/main.rs"
 
-[[test]]
-name = "tests"
-path = "tests/lib.rs"
-
 [dependencies]
 uuid = { version = "0.5", features = ["use_std", "serde", "v4"] }
 chrono = { version = "0.3", features = ["serde"] }
@@ -33,7 +29,7 @@ serde_json = "1"
 serde_derive = "1"
 validator = "0.4"
 validator_derive = "0.5"
-ring = "0.9"
+ring = "0.11"
 
 [dev-dependencies]
 quickcheck = "0.4"

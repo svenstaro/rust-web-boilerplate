@@ -7,12 +7,13 @@ use uuid::Uuid;
 use serde_json;
 use serde_json::Value;
 
-use rust_web_boilerplate::rocket_factory;
-use rust_web_boilerplate::models::user::UserModel;
-use rust_web_boilerplate::schema::users;
-use rust_web_boilerplate::schema::users::dsl::*;
+use rocket_factory;
 
-use factories::make_user;
+use models::user::UserModel;
+use schema::users;
+use schema::users::dsl::*;
+
+use tests::factories::make_user;
 
 static DB_LOCK: Mutex<()> = Mutex::new(());
 
