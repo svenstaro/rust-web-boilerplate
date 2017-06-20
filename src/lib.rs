@@ -1,5 +1,6 @@
-#![feature(plugin)]
+#![feature(plugin, const_fn)]
 #![plugin(rocket_codegen)]
+#![cfg_attr(test, plugin(stainless))]
 
 extern crate uuid;
 extern crate rocket;
@@ -16,6 +17,9 @@ extern crate r2d2;
 extern crate r2d2_diesel;
 extern crate ring;
 
+#[cfg(test)]
+extern crate parking_lot;
+
 pub mod api;
 pub mod validation;
 pub mod models;
@@ -23,6 +27,9 @@ pub mod schema;
 pub mod handlers;
 pub mod responses;
 pub mod helpers;
+
+#[cfg(test)]
+mod tests;
 
 use rocket::fairing::AdHoc;
 use chrono::Duration;
