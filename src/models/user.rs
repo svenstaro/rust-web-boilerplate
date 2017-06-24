@@ -2,7 +2,7 @@ use std::fmt;
 
 use uuid::Uuid;
 
-use chrono::{NaiveDateTime, UTC, Duration};
+use chrono::{NaiveDateTime, Utc, Duration};
 use argon2rs::argon2i_simple;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
@@ -51,14 +51,14 @@ impl UserModel {
     pub fn generate_auth_token(&mut self, conn: &PgConnection) -> String {
         let new_auth_token = Uuid::new_v4().hyphenated().to_string();
         self.current_auth_token = Some(new_auth_token.clone());
-        self.last_action = Some(UTC::now().naive_utc());
+        self.last_action = Some(Utc::now().naive_utc());
         self.save_changes::<UserModel>(conn);
         new_auth_token
     }
 
     /// Return whether or not the user has a valid auth token.
     pub fn has_valid_auth_token(&self, auth_token_timeout: Duration) -> bool {
-        let latest_valid_date = UTC::now() - auth_token_timeout;
+        let latest_valid_date = Utc::now() - auth_token_timeout;
         if let Some(last_action) = self.last_action {
             if self.current_auth_token.is_some() {
                 last_action > latest_valid_date.naive_utc()
