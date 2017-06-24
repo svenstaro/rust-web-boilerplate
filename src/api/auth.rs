@@ -3,12 +3,14 @@ use rocket_contrib::JSON;
 use validation::user::UserSerializer;
 use diesel::prelude::*;
 use diesel;
+use serde_json::Value;
 
 use models::user::{UserModel, NewUser};
 use schema::users;
 use schema::users::dsl::*;
 use helpers::db::DB;
-use responses::{APIResponse, ok, created, conflict, unauthorized, internal_server_error};
+use responses::{APIResponse, ok, created, conflict, unauthorized, unprocessable_entity,
+                internal_server_error};
 use RuntimeConfig;
 
 
@@ -16,10 +18,11 @@ use RuntimeConfig;
 ///
 /// Return UNAUTHORIZED in case the user can't be found or if the password is incorrect.
 #[post("/login", data = "<user_in>", format = "application/json")]
-pub fn login(user_in: JSON<UserSerializer>,
-             db: DB,
-             rconfig: State<RuntimeConfig>)
-             -> Result<APIResponse, APIResponse> {
+pub fn login(
+    user_in: JSON<UserSerializer>,
+    db: DB,
+    rconfig: State<RuntimeConfig>,
+) -> Result<APIResponse, APIResponse> {
     let user_q = users
         .filter(email.eq(user_in.email.clone()))
         .first::<UserModel>(&*db)
@@ -27,8 +30,9 @@ pub fn login(user_in: JSON<UserSerializer>,
         .or(Err(internal_server_error()))?;
 
     // For privacy reasons, we'll not provide the exact reason for failure here.
-    let mut user = user_q
-        .ok_or(unauthorized().message("Username or password incorrect."))?;
+    let mut user = user_q.ok_or(unauthorized().message(
+        "Username or password incorrect.",
+    ))?;
     if !user.verify_password(user_in.password.as_str()) {
         return Err(unauthorized().message("Username or password incorrect."));
     }
@@ -39,24 +43,27 @@ pub fn login(user_in: JSON<UserSerializer>,
         user.generate_auth_token(&db)
     };
 
-    Ok(ok().data(json!({"token": token})))
+    Ok(ok().data(json!({
+        "token": token
+    })))
 }
 
 /// Register a new user using email and password.
 ///
 /// Return CONFLICT is a user with the same email already exists.
 #[post("/register", data = "<user>", format = "application/json")]
-pub fn register(user: JSON<UserSerializer>, db: DB) -> Result<APIResponse, APIResponse> {
+pub fn register(user: Result<UserSerializer, Value>, db: DB) -> Result<APIResponse, APIResponse> {
+    let user_data = user.map_err(unprocessable_entity)?;
     let results = users
-        .filter(email.eq(user.email.clone()))
+        .filter(email.eq(user_data.email.clone()))
         .first::<UserModel>(&*db);
     if results.is_ok() {
         return Err(conflict().message("User already exists."));
     }
 
-    let new_password_hash = UserModel::make_password_hash(user.password.as_str());
+    let new_password_hash = UserModel::make_password_hash(user_data.password.as_str());
     let new_user = NewUser {
-        email: user.email.clone(),
+        email: user_data.email.clone(),
         password_hash: new_password_hash,
     };
 

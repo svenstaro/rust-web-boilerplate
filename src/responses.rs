@@ -106,9 +106,9 @@ pub fn conflict() -> APIResponse {
     }
 }
 
-pub fn unprocessable_entity() -> APIResponse {
+pub fn unprocessable_entity(errors: Value) -> APIResponse {
     APIResponse {
-        data: json!({"message": "Unprocessable Entity"}),
+        data: json!({"message": errors}),
         status: Status::UnprocessableEntity,
     }
 }

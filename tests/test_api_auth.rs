@@ -180,8 +180,10 @@ describe! auth_tests {
                 .header(ContentType::JSON)
                 .body(data.to_string())
                 .dispatch();
+            let body: Value = serde_json::from_str(&res.body_string().unwrap()).unwrap();
 
             assert_eq!(res.status(), Status::UnprocessableEntity);
+            assert_eq!(body["message"]["email"], json!(["Invalid email."]));
         }
 
         it "can't register with an empty email" {
@@ -193,8 +195,10 @@ describe! auth_tests {
                 .header(ContentType::JSON)
                 .body(data.to_string())
                 .dispatch();
+            let body: Value = serde_json::from_str(&res.body_string().unwrap()).unwrap();
 
             assert_eq!(res.status(), Status::UnprocessableEntity);
+            assert_eq!(body["message"]["email"], json!(["Must not be empty."]));
         }
 
         it "can't register with an empty password" {
@@ -206,8 +210,10 @@ describe! auth_tests {
                 .header(ContentType::JSON)
                 .body(data.to_string())
                 .dispatch();
+            let body: Value = serde_json::from_str(&res.body_string().unwrap()).unwrap();
 
             assert_eq!(res.status(), Status::UnprocessableEntity);
+            assert_eq!(body["message"]["password"], json!(["Must not be empty."]));
         }
     }
 }

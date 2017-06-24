@@ -3,13 +3,18 @@
 
 extern crate uuid;
 extern crate rocket;
-#[macro_use] extern crate rocket_contrib;
+#[macro_use]
+extern crate rocket_contrib;
 extern crate serde_json;
-#[macro_use] extern crate serde_derive;
+#[macro_use]
+extern crate serde_derive;
 extern crate validator;
-#[macro_use] extern crate validator_derive;
-#[macro_use] extern crate diesel;
-#[macro_use] extern crate diesel_codegen;
+#[macro_use]
+extern crate validator_derive;
+#[macro_use]
+extern crate diesel;
+#[macro_use]
+extern crate diesel_codegen;
 extern crate chrono;
 extern crate argon2rs;
 extern crate r2d2;
@@ -34,18 +39,28 @@ pub fn rocket_factory() -> (rocket::Rocket, helpers::db::Pool) {
     let rocket = rocket::ignite()
         .manage(db_pool.clone())
         .attach(AdHoc::on_attach(|rocket| {
-            let auth_timeout = rocket.config().get_int("auth_token_timeout_days").unwrap_or(7);
+            let auth_timeout = rocket
+                .config()
+                .get_int("auth_token_timeout_days")
+                .unwrap_or(7);
             let auth_token_duration = Duration::days(auth_timeout);
             Ok(rocket.manage(RuntimeConfig(auth_token_duration)))
         }))
         .mount("/hello/", routes![api::hello::whoami])
-        .mount("/auth/", routes![
+        .mount(
+            "/auth/",
+            routes![
                api::auth::login,
                api::auth::register,
-        ])
-        .catch(errors![handlers::bad_request_handler, handlers::unauthorized_handler,
-                       handlers::forbidden_handler, handlers::not_found_handler,
-                       handlers::internal_server_error_handler,
-                       handlers::service_unavailable_handler]);
+        ],
+        )
+        .catch(errors![
+            handlers::bad_request_handler,
+            handlers::unauthorized_handler,
+            handlers::forbidden_handler,
+            handlers::not_found_handler,
+            handlers::internal_server_error_handler,
+            handlers::service_unavailable_handler,
+        ]);
     (rocket, db_pool)
 }
