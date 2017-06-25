@@ -22,19 +22,25 @@ impl FromData for UserSerializer {
     type Error = Value;
 
     fn from_data(req: &Request, data: Data) -> data::Outcome<Self, Value> {
-        // TODO soon
-        // let user = JSON::<UserSerializer>::from_data(req, data)?;
-        let user = JSON::<UserSerializer>::from_data(req, data).unwrap();
+        let user = JSON::<UserSerializer>::from_data(req, data).map_failure(
+            |_| (Status::UnprocessableEntity, json!({"_schema": "Error while serialzing."})),
+        )?;
 
         let mut errors = HashMap::new();
         if user.email == "" {
-            errors.entry("email").or_insert(vec![]).push("Must not be empty.");
+            errors.entry("email").or_insert(vec![]).push(
+                "Must not be empty.",
+            );
         } else if !user.email.contains("@") || !user.email.contains(".") {
-            errors.entry("email").or_insert(vec![]).push("Invalid email.");
+            errors.entry("email").or_insert(vec![]).push(
+                "Invalid email.",
+            );
         }
 
         if user.password == "" {
-            errors.entry("password").or_insert(vec![]).push("Must not be empty.");
+            errors.entry("password").or_insert(vec![]).push(
+                "Must not be empty.",
+            );
         }
 
         if !errors.is_empty() {
