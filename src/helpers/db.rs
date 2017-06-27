@@ -3,8 +3,6 @@ use rocket::http::Status;
 use rocket::{Request, State, Outcome};
 use rocket::request::{self, FromRequest};
 use diesel::pg::PgConnection;
-use diesel::prelude::*;
-use diesel::connection::Connection;
 use r2d2;
 use r2d2_diesel::ConnectionManager;
 use std::env;
