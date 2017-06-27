@@ -13,4 +13,4 @@ before_script:
   - ./reset.sh
 script:
   - cargo build --verbose
-  - cargo test --verbose -- --test-threads=1 # See watch.sh for why 1 thread
+  - cargo test --verbose
