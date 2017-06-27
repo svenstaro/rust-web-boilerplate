@@ -1,8 +1,10 @@
 use std::io::Cursor;
+use std::convert::From;
 use rocket_contrib::Value;
 use rocket::request::Request;
 use rocket::response::{Response, Responder};
 use rocket::http::{Status, ContentType};
+use diesel::result::Error as DieselError;
 
 #[derive(Debug)]
 pub struct APIResponse {
@@ -19,8 +21,16 @@ impl APIResponse {
 
     /// Convenience method to set `self.data` to `{"message": message}`.
     pub fn message(mut self, message: &str) -> APIResponse {
-        self.data = json!({"message": message});
+        self.data = json!({
+            "message": message
+        });
         self
+    }
+}
+
+impl From<DieselError> for APIResponse {
+    fn from(_: DieselError) -> Self {
+        internal_server_error()
     }
 }
 

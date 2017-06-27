@@ -26,10 +26,10 @@ pub fn login(
     let user_q = users
         .filter(email.eq(user_in.email.clone()))
         .first::<UserModel>(&*db)
-        .optional()
-        .or(Err(internal_server_error()))?;
+        .optional()?;
 
-    // For privacy reasons, we'll not provide the exact reason for failure here.
+    // For privacy reasons, we'll not provide the exact reason for failure here (although this
+    // could probably be timing attacked to find out whether users exist or not.
     let mut user = user_q.ok_or(unauthorized().message(
         "Username or password incorrect.",
     ))?;
@@ -40,7 +40,7 @@ pub fn login(
     let token = if user.has_valid_auth_token(rconfig.0) {
         user.current_auth_token.ok_or(internal_server_error())?
     } else {
-        user.generate_auth_token(&db)
+        user.generate_auth_token(&db)?
     };
 
     Ok(ok().data(json!({

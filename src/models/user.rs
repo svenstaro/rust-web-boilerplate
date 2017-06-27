@@ -6,6 +6,7 @@ use chrono::{NaiveDateTime, Utc, Duration};
 use argon2rs::argon2i_simple;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
+use diesel::result::Error as DieselError;
 use ring::constant_time::verify_slices_are_equal;
 
 use schema::users;
@@ -48,12 +49,12 @@ impl UserModel {
     }
 
     /// Generate an auth token and save it to the `current_auth_token` column.
-    pub fn generate_auth_token(&mut self, conn: &PgConnection) -> String {
+    pub fn generate_auth_token(&mut self, conn: &PgConnection) -> Result<String, DieselError> {
         let new_auth_token = Uuid::new_v4().hyphenated().to_string();
         self.current_auth_token = Some(new_auth_token.clone());
         self.last_action = Some(Utc::now().naive_utc());
-        self.save_changes::<UserModel>(conn);
-        new_auth_token
+        self.save_changes::<UserModel>(conn)?;
+        Ok(new_auth_token)
     }
 
     /// Return whether or not the user has a valid auth token.

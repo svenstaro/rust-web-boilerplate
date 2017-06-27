@@ -1,3 +1,4 @@
+#[allow(unused_imports)]
 use diesel::prelude::*;
 use parking_lot::Mutex;
 use rocket::http::ContentType;
@@ -9,7 +10,6 @@ use serde_json::Value;
 
 use rust_web_boilerplate::rocket_factory;
 use rust_web_boilerplate::models::user::UserModel;
-use rust_web_boilerplate::schema::users;
 use rust_web_boilerplate::schema::users::dsl::*;
 
 use factories::make_user;
@@ -26,6 +26,7 @@ describe! auth_tests {
         let _lock = DB_LOCK.lock();
         let (rocket, db) = rocket_factory();
         let client = Client::new(rocket).unwrap();
+        #[allow(unused_variables)]
         let conn = &*db.get().expect("Failed to get a database connection for testing!");
     }
 
@@ -158,7 +159,7 @@ describe! auth_tests {
                 "email": new_email,
                 "password": new_password,
             });
-            let mut res = client.post("/auth/register")
+            client.post("/auth/register")
                 .header(ContentType::JSON)
                 .body(data.to_string())
                 .dispatch();
@@ -167,8 +168,10 @@ describe! auth_tests {
                 .header(ContentType::JSON)
                 .body(data.to_string())
                 .dispatch();
+            let body: Value = serde_json::from_str(&res.body_string().unwrap()).unwrap();
 
             assert_eq!(res.status(), Status::Conflict);
+            assert_eq!(body["message"], "User already exists.");
         }
 
         it "can't register with an invalid email" {
