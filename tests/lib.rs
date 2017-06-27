@@ -13,3 +13,4 @@ extern crate rust_web_boilerplate;
 
 mod factories;
 mod test_api_auth;
+mod test_api_hello;

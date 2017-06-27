@@ -79,7 +79,8 @@ impl UserModel {
         use schema::users::dsl::*;
 
         let v: Vec<&str> = token.split(':').collect();
-        let (user_id, auth_token) = (Uuid::parse_str(v[0]).unwrap_or(Uuid::nil()), v[1]);
+        let user_id = Uuid::parse_str(v.get(0).unwrap_or(&"")).unwrap_or(Uuid::nil());
+        let auth_token = v.get(1).unwrap_or(&"").to_string();
 
         let user = users
             .filter(id.eq(user_id))
@@ -92,6 +93,6 @@ impl UserModel {
                 }
             }
         }
-        return None;
+        None
     }
 }

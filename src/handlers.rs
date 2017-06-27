@@ -43,14 +43,15 @@ impl<'a, 'r> FromRequest<'a, 'r> for UserModel {
 
     fn from_request(request: &'a Request<'r>) -> request::Outcome<UserModel, ()> {
         let db = <DB as FromRequest>::from_request(request).unwrap();
-        let tokens: Vec<_> = request.headers().get("Authorization").collect();
-        if tokens.len() != 1 {
-            return Outcome::Failure((Status::Unauthorized, ()));
-        }
+        let keys: Vec<_> = request.headers().get("Authorization").collect();
+        if keys.len() != 1 {
+            return Outcome::Failure((Status::BadRequest, ()));
+        };
 
-        let login_token = tokens[0];
+        let token_header = keys[0];
+        let token = token_header.replace("Bearer ", "");
 
-        match UserModel::get_user_from_login_token(&login_token, &*db) {
+        match UserModel::get_user_from_login_token(&token, &*db) {
             Some(user) => Outcome::Success(user),
             None => Outcome::Failure((Status::Unauthorized, ())),
         }
