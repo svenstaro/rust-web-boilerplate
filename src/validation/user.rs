@@ -2,7 +2,7 @@ use rocket::data::{self, FromData};
 use rocket::{Request, Data};
 use rocket::http::Status;
 use rocket::Outcome::*;
-use rocket_contrib::JSON;
+use rocket_contrib::Json;
 use serde_json::Value;
 use std::collections::HashMap;
 
@@ -22,7 +22,7 @@ impl FromData for UserSerializer {
     type Error = Value;
 
     fn from_data(req: &Request, data: Data) -> data::Outcome<Self, Value> {
-        let user = JSON::<UserSerializer>::from_data(req, data).map_failure(
+        let user = Json::<UserSerializer>::from_data(req, data).map_failure(
             |_| (Status::UnprocessableEntity, json!({"_schema": "Error while serialzing."})),
         )?;
 

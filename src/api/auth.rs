@@ -1,5 +1,5 @@
 use rocket::State;
-use rocket_contrib::JSON;
+use rocket_contrib::Json;
 use validation::user::UserSerializer;
 use diesel::prelude::*;
 use diesel;
@@ -19,7 +19,7 @@ use RuntimeConfig;
 /// Return UNAUTHORIZED in case the user can't be found or if the password is incorrect.
 #[post("/login", data = "<user_in>", format = "application/json")]
 pub fn login(
-    user_in: JSON<UserSerializer>,
+    user_in: Json<UserSerializer>,
     db: DB,
     rconfig: State<RuntimeConfig>,
 ) -> Result<APIResponse, APIResponse> {
