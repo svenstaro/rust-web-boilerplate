@@ -32,7 +32,7 @@ describe! auth_tests {
 
     describe! login {
         it "enables users to login and get back a valid auth token" {
-            let user = make_user(&conn);
+            let user = make_user(conn);
             let data = json!({
                 "email": user.email,
                 "password": "testtest",
@@ -51,7 +51,7 @@ describe! auth_tests {
         }
 
         it "can log in and get back the same auth token if there's already a valid one" {
-            let user = make_user(&conn);
+            let user = make_user(conn);
             let data = json!({
                 "email": user.email,
                 "password": "testtest",
@@ -85,7 +85,7 @@ describe! auth_tests {
         }
 
         it "fails with a wrong username" {
-            make_user(&conn);
+            make_user(conn);
             let data = json!({
                     "email": "invalid@example.com",
                     "password": "testtest",
@@ -101,7 +101,7 @@ describe! auth_tests {
         }
 
         it "fails with a wrong password" {
-            let user = make_user(&conn);
+            let user = make_user(conn);
             let data = json!({
                     "email": user.email,
                     "password": "invalid",

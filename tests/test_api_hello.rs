@@ -28,7 +28,7 @@ describe! hello_tests {
 
     describe! whoami {
         it "echoes back the email" {
-            let user = make_user(&conn);
+            let user = make_user(conn);
             let data = json!({
                 "email": user.email,
                 "password": "testtest",
@@ -49,7 +49,7 @@ describe! hello_tests {
         }
 
         it "returns BadRequest when sent no Authorization header" {
-            let user = make_user(&conn);
+            let user = make_user(conn);
             let data = json!({
                 "email": user.email,
                 "password": "testtest",
@@ -67,7 +67,7 @@ describe! hello_tests {
         }
 
         it "returns Unauthorized when sent an invalid token" {
-            let user = make_user(&conn);
+            let user = make_user(conn);
             let data = json!({
                 "email": user.email,
                 "password": "testtest",
