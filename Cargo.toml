@@ -19,8 +19,8 @@ path = "tests/lib.rs"
 uuid = { version = "0.5", features = ["use_std", "serde", "v4"] }
 chrono = { version = "0.4", features = ["serde"] }
 argon2rs = "0.2"
-rocket = { git = "https://github.com/SergioBenitez/Rocket.git" }
-rocket_codegen = { git = "https://github.com/SergioBenitez/Rocket.git" }
+rocket = { version = "0.3" }
+rocket_codegen = { version = "0.3" }
 # rocket = { version = "0.3", features = ["testing"] }
 # rocket_codegen = "0.3"
 diesel = { version = "0.14.0", features = ["postgres", "uuid", "chrono", "serde_json"] }
@@ -41,7 +41,6 @@ stainless = "0.1"
 parking_lot = {version = "0.4", features = ["nightly"]}
 
 [dependencies.rocket_contrib]
-# version = "0.3"
-git = "https://github.com/SergioBenitez/Rocket.git"
+version = "0.3"
 default-features = false
 features = ["json"]
