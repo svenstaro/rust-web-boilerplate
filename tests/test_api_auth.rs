@@ -18,6 +18,7 @@ static DB_LOCK: Mutex<()> = Mutex::new(());
 
 #[derive(Deserialize)]
 struct LoginData {
+    user_id: Uuid,
     token: String,
 }
 
@@ -47,6 +48,7 @@ describe! auth_tests {
                 .find(user.id)
                 .first::<UserModel>(conn).unwrap();
             assert_eq!(res.status(), Status::Ok);
+            assert_eq!(body.user_id, refreshed_user.id);
             assert_eq!(body.token, refreshed_user.current_auth_token.unwrap());
         }
 

@@ -44,7 +44,8 @@ pub fn login(
     };
 
     Ok(ok().data(json!({
-        "token": token
+        "user_id": user.id,
+        "token": token,
     })))
 }
 
