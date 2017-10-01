@@ -1,5 +1,6 @@
 #![feature(plugin)]
 #![plugin(rocket_codegen)]
+#![recursion_limit="128"]
 
 extern crate uuid;
 extern crate rocket;
