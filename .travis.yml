@@ -12,5 +12,5 @@ before_script:
   - cargo install diesel_cli
   - ./reset.sh
 script:
-  - bash -c '[[ "TRAVIS_RUST_VERSION" == "nightly" ]] && cargo build --verbose --features clippy || cargo build --verbose --features clippy'
+  - bash -c '[[ "TRAVIS_RUST_VERSION" == "nightly" ]] && cargo build --features clippy || cargo build'
   - cargo test --verbose
