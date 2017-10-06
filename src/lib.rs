@@ -2,6 +2,11 @@
 #![plugin(rocket_codegen)]
 #![recursion_limit="128"]
 
+// Clippy stuff
+#![cfg_attr(feature="clippy", feature(plugin))]
+#![cfg_attr(feature="clippy", plugin(clippy))]
+#![allow(needless_pass_by_value)]
+
 extern crate uuid;
 extern crate rocket;
 #[macro_use]

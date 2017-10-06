@@ -21,8 +21,6 @@ chrono = { version = "0.4", features = ["serde"] }
 argon2rs = "0.2"
 rocket = { version = "0.3" }
 rocket_codegen = { version = "0.3" }
-# rocket = { version = "0.3", features = ["testing"] }
-# rocket_codegen = "0.3"
 diesel = { version = "0.16.0", features = ["postgres", "uuid", "chrono", "serde_json"] }
 diesel_codegen = { version = "0.16.0", features = ["postgres"] }
 r2d2 = "0.7"
@@ -35,6 +33,7 @@ validator = "0.6"
 validator_derive = "0.6"
 ring = "0.11"
 rand = "0.3"
+clippy = {version = "*", optional = true}
 
 [dev-dependencies]
 quickcheck = "0.4"
@@ -45,3 +44,6 @@ parking_lot = {version = "0.4", features = ["nightly"]}
 version = "0.3"
 default-features = false
 features = ["json"]
+
+[features]
+default = []
