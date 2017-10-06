@@ -1,13 +1,13 @@
 use std::fmt;
 
 use uuid::Uuid;
-
 use chrono::{NaiveDateTime, Utc, Duration};
 use argon2rs::argon2i_simple;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use diesel::result::Error as DieselError;
 use ring::constant_time::verify_slices_are_equal;
+use rand::{Rng, OsRng};
 
 use schema::users;
 
@@ -24,7 +24,7 @@ pub struct UserModel {
 }
 
 #[derive(Insertable)]
-#[table_name="users"]
+#[table_name = "users"]
 pub struct NewUser {
     pub email: String,
     pub password_hash: Vec<u8>,
@@ -50,7 +50,8 @@ impl UserModel {
 
     /// Generate an auth token and save it to the `current_auth_token` column.
     pub fn generate_auth_token(&mut self, conn: &PgConnection) -> Result<String, DieselError> {
-        let new_auth_token = Uuid::new_v4().hyphenated().to_string();
+        let mut rand_gen = OsRng::new().unwrap();
+        let new_auth_token = rand_gen.gen_ascii_chars().take(32).collect::<String>();
         self.current_auth_token = Some(new_auth_token.clone());
         self.last_action = Some(Utc::now().naive_utc());
         self.save_changes::<UserModel>(conn)?;
