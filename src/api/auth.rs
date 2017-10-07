@@ -24,7 +24,7 @@ pub fn login(
     rconfig: State<RuntimeConfig>,
 ) -> Result<APIResponse, APIResponse> {
     let user_q = users
-        .filter(email.eq(user_in.email.clone()))
+        .filter(email.eq(&user_in.email))
         .first::<UserModel>(&*db)
         .optional()?;
 
