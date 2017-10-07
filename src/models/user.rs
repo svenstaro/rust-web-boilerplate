@@ -84,7 +84,7 @@ impl UserModel {
         let auth_token = v.get(1).unwrap_or(&"").to_string();
 
         let user = users
-            .filter(id.eq(user_id))
+            .find(user_id)
             .first::<UserModel>(&*db)
             .optional();
         if let Ok(Some(u)) = user {
