@@ -28,17 +28,17 @@ impl FromData for UserSerializer {
 
         let mut errors = HashMap::new();
         if user.email == "" {
-            errors.entry("email").or_insert(vec![]).push(
+            errors.entry("email").or_insert_with(|| vec![]).push(
                 "Must not be empty.",
             );
-        } else if !user.email.contains("@") || !user.email.contains(".") {
-            errors.entry("email").or_insert(vec![]).push(
+        } else if !user.email.contains('@') || !user.email.contains('.') {
+            errors.entry("email").or_insert_with(|| vec![]).push(
                 "Invalid email.",
             );
         }
 
         if user.password == "" {
-            errors.entry("password").or_insert(vec![]).push(
+            errors.entry("password").or_insert_with(|| vec![]).push(
                 "Must not be empty.",
             );
         }
@@ -47,10 +47,10 @@ impl FromData for UserSerializer {
             return Failure((Status::UnprocessableEntity, json!(errors)));
         }
 
-        return Success(UserSerializer {
+        Success(UserSerializer {
             id: None,
             email: user.email.clone(),
             password: user.password.clone(),
-        });
+        })
     }
 }

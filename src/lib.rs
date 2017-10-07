@@ -36,6 +36,7 @@ pub mod handlers;
 pub mod responses;
 pub mod helpers;
 
+use std::sync::Arc;
 use rocket::fairing::AdHoc;
 use chrono::Duration;
 
@@ -44,7 +45,7 @@ pub struct RuntimeConfig(Duration);
 pub fn rocket_factory() -> (rocket::Rocket, helpers::db::Pool) {
     let db_pool = helpers::db::init_db_pool();
     let rocket = rocket::ignite()
-        .manage(db_pool.clone())
+        .manage(Arc::clone(&db_pool))
         .attach(AdHoc::on_attach(|rocket| {
             let auth_timeout = rocket
                 .config()

@@ -30,15 +30,16 @@ pub fn login(
 
     // For privacy reasons, we'll not provide the exact reason for failure here (although this
     // could probably be timing attacked to find out whether users exist or not.
-    let mut user = user_q.ok_or(unauthorized().message(
+    let mut user = user_q.ok_or_else(|| unauthorized().message(
         "Username or password incorrect.",
     ))?;
+
     if !user.verify_password(user_in.password.as_str()) {
         return Err(unauthorized().message("Username or password incorrect."));
     }
 
     let token = if user.has_valid_auth_token(rconfig.0) {
-        user.current_auth_token.ok_or(internal_server_error())?
+        user.current_auth_token.ok_or_else(internal_server_error)?
     } else {
         user.generate_auth_token(&db)?
     };

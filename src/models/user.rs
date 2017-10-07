@@ -50,7 +50,7 @@ impl UserModel {
 
     /// Generate an auth token and save it to the `current_auth_token` column.
     pub fn generate_auth_token(&mut self, conn: &PgConnection) -> Result<String, DieselError> {
-        let mut rand_gen = OsRng::new().unwrap();
+        let mut rand_gen = OsRng::new().expect("Couldn't make OsRng!");
         let new_auth_token = rand_gen.gen_ascii_chars().take(32).collect::<String>();
         self.current_auth_token = Some(new_auth_token.clone());
         self.last_action = Some(Utc::now().naive_utc());
@@ -80,7 +80,7 @@ impl UserModel {
         use schema::users::dsl::*;
 
         let v: Vec<&str> = token.split(':').collect();
-        let user_id = Uuid::parse_str(v.get(0).unwrap_or(&"")).unwrap_or(Uuid::nil());
+        let user_id = Uuid::parse_str(v.get(0).unwrap_or(&"")).unwrap_or_default();
         let auth_token = v.get(1).unwrap_or(&"").to_string();
 
         let user = users
