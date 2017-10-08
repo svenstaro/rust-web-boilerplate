@@ -1,6 +1,6 @@
 language: rust
 env:
-  - DATABASE_URL=postgres://localhost/boilerplateapp
+  - BOILERPLATEAPP_DATABASE_URL=postgres://localhost/boilerplateapp
 services:
   - postgresql
 rust:
