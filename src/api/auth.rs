@@ -10,7 +10,7 @@ use schema::users;
 use schema::users::dsl::*;
 use helpers::db::DB;
 use responses::{APIResponse, ok, created, conflict, unauthorized, unprocessable_entity,
-                internal_server_error};
+internal_server_error};
 use config::Config;
 
 
@@ -22,7 +22,7 @@ pub fn login(
     user_in: Json<UserLogin>,
     db: DB,
     config: State<Config>,
-) -> Result<APIResponse, APIResponse> {
+    ) -> Result<APIResponse, APIResponse> {
     let user_q = users
         .filter(email.eq(&user_in.email))
         .first::<UserModel>(&*db)
@@ -56,12 +56,6 @@ pub fn login(
 #[post("/register", data = "<user>", format = "application/json")]
 pub fn register(user: Result<UserLogin, Value>, db: DB) -> Result<APIResponse, APIResponse> {
     let user_data = user.map_err(unprocessable_entity)?;
-    let results = users
-        .filter(email.eq(user_data.email.clone()))
-        .first::<UserModel>(&*db);
-    if results.is_ok() {
-        return Err(conflict().message("User already exists."));
-    }
 
     let new_password_hash = UserModel::make_password_hash(user_data.password.as_str());
     let new_user = NewUser {
@@ -69,9 +63,13 @@ pub fn register(user: Result<UserLogin, Value>, db: DB) -> Result<APIResponse, A
         password_hash: new_password_hash,
     };
 
-    let user = diesel::insert(&new_user)
+    let insert_result = diesel::insert(&new_user)
         .into(users::table)
-        .get_result::<UserModel>(&*db)?;
+        .get_result::<UserModel>(&*db);
+    if let Err(diesel::result::Error::DatabaseError(diesel::result::DatabaseErrorKind::UniqueViolation, _)) = insert_result {
+        return Err(conflict().message("User already exists."));
+    }
 
+    let user = insert_result?;
     Ok(created().data(json!(&user)))
 }
