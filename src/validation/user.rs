@@ -6,11 +6,11 @@ use rocket_contrib::Json;
 use serde_json::Value;
 use std::collections::HashMap;
 
-use uuid::Uuid;
 use validator::Validate;
+use uuid::Uuid;
 
-#[derive(Serialize, Deserialize, Debug, Validate)]
-pub struct UserSerializer {
+#[derive(Deserialize, Debug, Validate)]
+pub struct UserLogin {
     #[serde(skip_deserializing)]
     pub id: Option<Uuid>,
     #[validate(email)]
@@ -18,13 +18,16 @@ pub struct UserSerializer {
     pub password: String,
 }
 
-impl FromData for UserSerializer {
+impl FromData for UserLogin {
     type Error = Value;
 
     fn from_data(req: &Request, data: Data) -> data::Outcome<Self, Value> {
-        let user = Json::<UserSerializer>::from_data(req, data).map_failure(
-            |_| (Status::UnprocessableEntity, json!({"_schema": "Error while serialzing."})),
-        )?;
+        let user = Json::<UserLogin>::from_data(req, data).map_failure(|_| {
+            (
+                Status::UnprocessableEntity,
+                json!({"_schema": "Error while parsing user login."}),
+            )
+        })?;
 
         let mut errors = HashMap::new();
         if user.email == "" {
@@ -47,8 +50,8 @@ impl FromData for UserSerializer {
             return Failure((Status::UnprocessableEntity, json!(errors)));
         }
 
-        Success(UserSerializer {
-            id: None,
+        Success(UserLogin {
+            id: user.id,
             email: user.email.clone(),
             password: user.password.clone(),
         })

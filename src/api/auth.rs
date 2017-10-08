@@ -1,6 +1,6 @@
 use rocket::State;
 use rocket_contrib::Json;
-use validation::user::UserSerializer;
+use validation::user::UserLogin;
 use diesel::prelude::*;
 use diesel;
 use serde_json::Value;
@@ -19,7 +19,7 @@ use config::Config;
 /// Return UNAUTHORIZED in case the user can't be found or if the password is incorrect.
 #[post("/login", data = "<user_in>", format = "application/json")]
 pub fn login(
-    user_in: Json<UserSerializer>,
+    user_in: Json<UserLogin>,
     db: DB,
     config: State<Config>,
 ) -> Result<APIResponse, APIResponse> {
@@ -54,7 +54,7 @@ pub fn login(
 ///
 /// Return CONFLICT is a user with the same email already exists.
 #[post("/register", data = "<user>", format = "application/json")]
-pub fn register(user: Result<UserSerializer, Value>, db: DB) -> Result<APIResponse, APIResponse> {
+pub fn register(user: Result<UserLogin, Value>, db: DB) -> Result<APIResponse, APIResponse> {
     let user_data = user.map_err(unprocessable_entity)?;
     let results = users
         .filter(email.eq(user_data.email.clone()))
