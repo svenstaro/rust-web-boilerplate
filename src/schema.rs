@@ -1,1 +1,1 @@
-infer_schema!("env:DATABASE_URL");
+infer_schema!("env:BOILERPLATEAPP_DATABASE_URL");
