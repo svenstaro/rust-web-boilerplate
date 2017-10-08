@@ -20,7 +20,7 @@ struct LoginData {
 describe! hello_tests {
     before_each {
         let _lock = DB_LOCK.lock();
-        let (rocket, db) = rocket_factory();
+        let (rocket, db) = rocket_factory("testing").unwrap();
         let client = Client::new(rocket).unwrap();
         #[allow(unused_variables)]
         let conn = &*db.get().expect("Failed to get a database connection for testing!");

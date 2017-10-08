@@ -29,31 +29,25 @@ extern crate ring;
 extern crate rand;
 
 pub mod api;
-pub mod validation;
-pub mod models;
-pub mod schema;
+pub mod config;
 pub mod handlers;
-pub mod responses;
 pub mod helpers;
+pub mod models;
+pub mod responses;
+pub mod schema;
+pub mod validation;
 
 use std::sync::Arc;
-use rocket::fairing::AdHoc;
-use chrono::Duration;
 
-pub struct RuntimeConfig(Duration);
-
-pub fn rocket_factory() -> (rocket::Rocket, helpers::db::Pool) {
-    let db_pool = helpers::db::init_db_pool();
+/// Constructs a new Rocket instance.
+///
+/// This function takes care of attaching all routes and handlers of the application.
+pub fn rocket_factory(config_name: &str) -> Result<(rocket::Rocket, helpers::db::Pool), String> {
+    let config = config::Config::from(config_name)?;
+    let db_pool = helpers::db::init_db_pool(&config.database_url).map_err(|e| e.to_string())?;
     let rocket = rocket::ignite()
         .manage(Arc::clone(&db_pool))
-        .attach(AdHoc::on_attach(|rocket| {
-            let auth_timeout = rocket
-                .config()
-                .get_int("auth_token_timeout_days")
-                .unwrap_or(7);
-            let auth_token_duration = Duration::days(auth_timeout);
-            Ok(rocket.manage(RuntimeConfig(auth_token_duration)))
-        }))
+        .manage(config)
         .mount("/hello/", routes![api::hello::whoami])
         .mount(
             "/auth/",
@@ -70,5 +64,5 @@ pub fn rocket_factory() -> (rocket::Rocket, helpers::db::Pool) {
             handlers::internal_server_error_handler,
             handlers::service_unavailable_handler,
         ]);
-    (rocket, db_pool)
+    Ok((rocket, db_pool))
 }

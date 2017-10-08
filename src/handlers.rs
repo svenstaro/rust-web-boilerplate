@@ -42,7 +42,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for UserModel {
     type Error = ();
 
     fn from_request(request: &'a Request<'r>) -> request::Outcome<UserModel, ()> {
-        let db = <DB as FromRequest>::from_request(request).unwrap();
+        let db = <DB as FromRequest>::from_request(request)?;
         let keys: Vec<_> = request.headers().get("Authorization").collect();
         if keys.len() != 1 {
             return Outcome::Failure((Status::BadRequest, ()));

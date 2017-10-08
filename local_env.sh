@@ -1,2 +1,3 @@
 #!/usr/bin/env bash
-export DATABASE_URL=postgres://localhost/boilerplateapp
+export BOILERPLATEAPP_CONFIG=local
+export BOILERPLATEAPP_DATABASE_URL=postgres://localhost/boilerplateapp

@@ -11,7 +11,7 @@ use schema::users::dsl::*;
 use helpers::db::DB;
 use responses::{APIResponse, ok, created, conflict, unauthorized, unprocessable_entity,
                 internal_server_error};
-use RuntimeConfig;
+use config::Config;
 
 
 /// Log the user in and return a response with an auth token.
@@ -21,7 +21,7 @@ use RuntimeConfig;
 pub fn login(
     user_in: Json<UserSerializer>,
     db: DB,
-    rconfig: State<RuntimeConfig>,
+    config: State<Config>,
 ) -> Result<APIResponse, APIResponse> {
     let user_q = users
         .filter(email.eq(&user_in.email))
@@ -30,15 +30,15 @@ pub fn login(
 
     // For privacy reasons, we'll not provide the exact reason for failure here (although this
     // could probably be timing attacked to find out whether users exist or not.
-    let mut user = user_q.ok_or_else(|| unauthorized().message(
-        "Username or password incorrect.",
-    ))?;
+    let mut user = user_q.ok_or_else(|| {
+        unauthorized().message("Username or password incorrect.")
+    })?;
 
     if !user.verify_password(user_in.password.as_str()) {
         return Err(unauthorized().message("Username or password incorrect."));
     }
 
-    let token = if user.has_valid_auth_token(rconfig.0) {
+    let token = if user.has_valid_auth_token(config.auth_token_timeout_days) {
         user.current_auth_token.ok_or_else(internal_server_error)?
     } else {
         user.generate_auth_token(&db)?

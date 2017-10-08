@@ -4,20 +4,26 @@ use rocket::{Request, State, Outcome};
 use rocket::request::{self, FromRequest};
 use diesel::pg::PgConnection;
 use r2d2;
-use r2d2_diesel::ConnectionManager;
-use std::env;
+use r2d2_diesel;
 use std::sync::Arc;
 
-pub type Pool = Arc<r2d2::Pool<ConnectionManager<PgConnection>>>;
+pub type Pool = Arc<r2d2::Pool<r2d2_diesel::ConnectionManager<PgConnection>>>;
 
-pub fn init_db_pool() -> Pool {
+/// Initializes the database pool.
+///
+/// This will return a `Result` with a freshly initialized database pool inside.
+///
+/// # Error
+///
+/// In case a `Pool` can't be initialized (for whatever reason), we return a
+/// `r2d2::InitializationError`.
+pub fn init_db_pool(database_url: &str) -> Result<Pool, r2d2::InitializationError> {
     let config = r2d2::Config::default();
-    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-    let manager = ConnectionManager::<PgConnection>::new(database_url);
-    Arc::new(r2d2::Pool::new(config, manager).expect("Failed to create pool."))
+    let manager = r2d2_diesel::ConnectionManager::<PgConnection>::new(database_url);
+    Ok(Arc::new(r2d2::Pool::new(config, manager)?))
 }
 
-pub struct DB(r2d2::PooledConnection<ConnectionManager<PgConnection>>);
+pub struct DB(r2d2::PooledConnection<r2d2_diesel::ConnectionManager<PgConnection>>);
 
 impl Deref for DB {
     type Target = PgConnection;
