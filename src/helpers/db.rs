@@ -17,10 +17,12 @@ pub type Pool = Arc<r2d2::Pool<r2d2_diesel::ConnectionManager<PgConnection>>>;
 ///
 /// In case a `Pool` can't be initialized (for whatever reason), we return a
 /// `r2d2::InitializationError`.
-pub fn init_db_pool(database_url: &str) -> Result<Pool, r2d2::InitializationError> {
-    let config = r2d2::Config::default();
+pub fn init_db_pool(database_url: &str) -> Result<Pool, r2d2::Error> {
     let manager = r2d2_diesel::ConnectionManager::<PgConnection>::new(database_url);
-    Ok(Arc::new(r2d2::Pool::new(config, manager)?))
+    let config = r2d2::Pool::builder()
+        .max_size(15)
+        .build(manager)?;
+    Ok(Arc::new(config))
 }
 
 pub struct DB(r2d2::PooledConnection<r2d2_diesel::ConnectionManager<PgConnection>>);

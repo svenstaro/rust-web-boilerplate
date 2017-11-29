@@ -63,8 +63,8 @@ pub fn register(user: Result<UserLogin, Value>, db: DB) -> Result<APIResponse, A
         password_hash: new_password_hash,
     };
 
-    let insert_result = diesel::insert(&new_user)
-        .into(users::table)
+    let insert_result = diesel::insert_into(users::table)
+        .values(&new_user)
         .get_result::<UserModel>(&*db);
     if let Err(diesel::result::Error::DatabaseError(diesel::result::DatabaseErrorKind::UniqueViolation, _)) = insert_result {
         return Err(conflict().message("User already exists."));
