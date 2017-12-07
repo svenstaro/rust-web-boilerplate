@@ -38,7 +38,7 @@ clippy = {version = "*", optional = true}
 [dev-dependencies]
 quickcheck = "0.5"
 stainless = { git = "https://github.com/reem/stainless.git" }
-parking_lot = {version = "0.4", features = ["nightly"]}
+parking_lot = {version = "0.5", features = ["nightly"]}
 
 [dependencies.rocket_contrib]
 version = "0.3"
