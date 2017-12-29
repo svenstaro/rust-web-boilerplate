@@ -16,7 +16,7 @@ impl Default for Config {
     fn default() -> Config {
         Config {
             auth_token_timeout_days: Duration::days(30),
-            database_url: env::var("BOILERPLATEAPP_DATABASE_URL").expect("BOILERPLATEAPP_DATABASE_URL must be set"),
+            database_url: env::var("DATABASE_URL").expect("DATABASE_URL must be set"),
             cors_allow_origin: String::from("*"),
             cors_allow_methods: String::from("*"),
             cors_allow_headers: String::from("*"),

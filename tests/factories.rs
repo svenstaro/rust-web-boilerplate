@@ -4,7 +4,7 @@ use diesel::prelude::*;
 use diesel::pg::PgConnection;
 
 use rust_web_boilerplate::models::user::{UserModel, NewUser};
-use rust_web_boilerplate::schema::users;
+use rust_web_boilerplate::schema::users::dsl::*;
 
 /// Create a new `User` and add it to the database.
 ///
@@ -17,8 +17,8 @@ pub fn make_user(conn: &PgConnection) -> UserModel {
         password_hash: new_password_hash,
     };
 
-    diesel::insert(&new_user)
-        .into(users::table)
+    diesel::insert_into(users)
+        .values(&new_user)
         .get_result::<UserModel>(conn)
         .expect("Error saving new post")
 }
