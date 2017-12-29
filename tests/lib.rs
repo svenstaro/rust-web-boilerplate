@@ -10,7 +10,9 @@ extern crate serde_json;
 #[macro_use] extern crate serde_derive;
 
 extern crate rust_web_boilerplate;
+extern crate dotenv;
 
+mod common;
 mod factories;
 mod test_api_auth;
 mod test_api_hello;

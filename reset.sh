@@ -1,4 +1,4 @@
 #!/bin/bash
 
-dropdb --if-exists boilerplateapp
-diesel setup --database-url ${BOILERPLATEAPP_DATABASE_URL}
+dropdb --if-exists ${DATABASE_NAME}
+diesel setup --database-url ${DATABASE_URL}
