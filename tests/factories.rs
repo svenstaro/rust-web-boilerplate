@@ -17,8 +17,8 @@ pub fn make_user(conn: &PgConnection) -> UserModel {
         password_hash: new_password_hash,
     };
 
-    diesel::insert(&new_user)
-        .into(users::table)
+    diesel::insert_into(users::table)
+        .values(&new_user)
         .get_result::<UserModel>(conn)
         .expect("Error saving new post")
 }

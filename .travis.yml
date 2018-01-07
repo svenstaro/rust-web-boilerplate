@@ -1,4 +1,5 @@
 language: rust
+cache: cargo
 env:
   - BOILERPLATEAPP_DATABASE_URL=postgres://localhost/boilerplateapp
 services:
