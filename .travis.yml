@@ -10,7 +10,7 @@ matrix:
   allow_failures:
     - rust: [stable, beta]
 before_script:
-  - cargo install diesel_cli
+  - cargo install --force diesel_cli
   - ./reset.sh
 script:
   - bash -c '[[ "TRAVIS_RUST_VERSION" == "nightly" ]] && cargo build --features "strict clippy" || cargo build'
