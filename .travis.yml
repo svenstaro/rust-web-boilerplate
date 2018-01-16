@@ -8,9 +8,12 @@ rust:
   - stable
   - beta
   - nightly
+
 matrix:
   allow_failures:
-    - rust: [stable, beta]
+    - rust: stable
+    - rust: beta
+
 before_script:
   - cargo install --force diesel_cli
   - ./reset.sh
