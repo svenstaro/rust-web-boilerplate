@@ -14,11 +14,7 @@ Install a few external dependencies and make sure `~/.cargo/bin` is in your `$PA
     cargo install diesel_cli
     cargo install watchexec
 
-Set up your environment by sourcing `local_env.sh`.
-
-    source local_env.sh
-
-For every new shell you need to source this file and you're good to go.
+Copy `.env.example` to `.env` and update your application environment in this file.
 
 Make sure you have a working local postgres setup. Your current user should be
 admin in your development postgres installation and it should use the "peer" or

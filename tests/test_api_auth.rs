@@ -11,8 +11,8 @@ use serde_json::Value;
 use rust_web_boilerplate::rocket_factory;
 use rust_web_boilerplate::models::user::UserModel;
 use rust_web_boilerplate::schema::users::dsl::*;
-
 use factories::make_user;
+use common;
 
 static DB_LOCK: Mutex<()> = Mutex::new(());
 
@@ -24,6 +24,7 @@ struct LoginData {
 
 describe! auth_tests {
     before_each {
+        common::setup();
         let _lock = DB_LOCK.lock();
         let (rocket, db) = rocket_factory("testing").unwrap();
         let client = Client::new(rocket).unwrap();
