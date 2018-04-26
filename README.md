@@ -1,6 +1,8 @@
 # Rust Web Boilerplate
 
 [![Build Status](https://travis-ci.org/svenstaro/rust-web-boilerplate.svg?branch=master)](https://travis-ci.org/svenstaro/rust-web-boilerplate)
+[![dependency status](https://deps.rs/repo/github/svenstaro/rust-web-boilerplate/status.svg)](https://deps.rs/repo/github/svenstaro/rust-web-boilerplate)
+
 
 ## About
 This is a boilerplate project made using best practices for getting started quickly

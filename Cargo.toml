@@ -16,7 +16,7 @@ name = "tests"
 path = "tests/lib.rs"
 
 [dependencies]
-uuid = { version = "0.5", features = ["use_std", "serde", "v4"] }
+uuid = { version = "0.6", features = ["use_std", "serde", "v4"] }
 chrono = { version = "0.4", features = ["serde"] }
 argon2rs = "0.2"
 rocket = { version = "0.3" }
@@ -37,7 +37,7 @@ clippy = {version = "*", optional = true}
 
 [dev-dependencies]
 quickcheck = "0.6"
-stainless = { git = "https://github.com/reem/stainless.git" }
+stainless = { git = "https://github.com/PSeitz/stainless.git" }
 parking_lot = {version = "0.5", features = ["nightly"]}
 
 [dependencies.rocket_contrib]
