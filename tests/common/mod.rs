@@ -1,5 +1,5 @@
-use dotenv::dotenv;
+extern crate dotenv;
 
 pub fn setup() {
-    dotenv().ok();
+    dotenv::dotenv().ok();
 }

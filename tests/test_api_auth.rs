@@ -1,18 +1,33 @@
+#![feature(plugin)]
+#![plugin(speculate)]
+
+extern crate rocket;
+#[macro_use]
+extern crate rocket_contrib;
+extern crate diesel;
+extern crate parking_lot;
+extern crate serde_json;
+extern crate uuid;
+#[macro_use]
+extern crate serde_derive;
+
+extern crate rust_web_boilerplate;
+
 #[allow(unused_imports)]
 use diesel::prelude::*;
 use parking_lot::Mutex;
-use rocket::http::ContentType;
-use rocket::http::Status;
+use rocket::http::{ContentType, Status};
 use rocket::local::Client;
+use rocket_contrib::Value;
 use uuid::Uuid;
-use serde_json;
-use serde_json::Value;
 
-use rust_web_boilerplate::rocket_factory;
-use rust_web_boilerplate::models::user::UserModel;
-use rust_web_boilerplate::schema::users::dsl::*;
 use factories::make_user;
-use common;
+use rust_web_boilerplate::models::user::UserModel;
+use rust_web_boilerplate::rocket_factory;
+use rust_web_boilerplate::schema::users::dsl::*;
+
+mod common;
+mod factories;
 
 static DB_LOCK: Mutex<()> = Mutex::new(());
 
@@ -22,8 +37,8 @@ struct LoginData {
     token: String,
 }
 
-describe! auth_tests {
-    before_each {
+speculate! {
+    before {
         common::setup();
         let _lock = DB_LOCK.lock();
         let (rocket, db) = rocket_factory("testing").unwrap();
@@ -32,7 +47,7 @@ describe! auth_tests {
         let conn = &*db.get().expect("Failed to get a database connection for testing!");
     }
 
-    describe! login {
+    describe "login" {
         it "enables users to login and get back a valid auth token" {
             let user = make_user(conn);
             let data = json!({
@@ -120,7 +135,7 @@ describe! auth_tests {
         }
     }
 
-    describe! register {
+    describe "register" {
         it "allows users to register a new account and then login with it" {
             let new_email = format!("{username}@example.com", username=Uuid::new_v4().hyphenated().to_string());
             let new_password = "mypassword";

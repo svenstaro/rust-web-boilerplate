@@ -1,15 +1,30 @@
+#![feature(plugin)]
+#![plugin(speculate)]
+
+extern crate rocket;
+#[macro_use]
+extern crate rocket_contrib;
+extern crate diesel;
+extern crate parking_lot;
+extern crate serde_json;
+extern crate uuid;
+#[macro_use]
+extern crate serde_derive;
+
+extern crate rust_web_boilerplate;
+
 #[allow(unused_imports)]
 use diesel::prelude::*;
 use parking_lot::Mutex;
-use rocket::http::{ContentType, Status, Header};
+use rocket::http::{ContentType, Header, Status};
 use rocket::local::Client;
-use serde_json;
 use uuid::Uuid;
 
+use factories::make_user;
 use rust_web_boilerplate::rocket_factory;
 
-use factories::make_user;
-use common;
+mod common;
+mod factories;
 
 static DB_LOCK: Mutex<()> = Mutex::new(());
 
@@ -18,8 +33,8 @@ struct LoginData {
     token: String,
 }
 
-describe! hello_tests {
-    before_each {
+speculate! {
+    before {
         common::setup();
         let _lock = DB_LOCK.lock();
         let (rocket, db) = rocket_factory("testing").unwrap();
@@ -28,7 +43,7 @@ describe! hello_tests {
         let conn = &*db.get().expect("Failed to get a database connection for testing!");
     }
 
-    describe! whoami {
+    describe "whoami" {
         it "echoes back the email" {
             let user = make_user(conn);
             let data = json!({
