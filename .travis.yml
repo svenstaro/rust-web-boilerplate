@@ -14,9 +14,9 @@ matrix:
     - rust: beta
 
 before_script:
-  - cargo install --force diesel_cli
+  - cargo install --force diesel_cli cargo-clippy
   - cp .env.example .env
   - ./reset.sh
 script:
-  - bash -c '[[ "TRAVIS_RUST_VERSION" == "nightly" ]] && cargo build --features "strict clippy" || cargo build'
+  - bash -c '[[ "TRAVIS_RUST_VERSION" == "nightly" ]] && cargo clippy || cargo build'
   - cargo test --verbose
