@@ -49,7 +49,7 @@ pub fn rocket_factory(config_name: &str) -> Result<(rocket::Rocket, helpers::db:
                api::auth::register,
         ],
         )
-        .catch(errors![
+        .catch(catchers![
             handlers::bad_request_handler,
             handlers::unauthorized_handler,
             handlers::forbidden_handler,

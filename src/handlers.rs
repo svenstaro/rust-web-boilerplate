@@ -8,32 +8,32 @@ use responses::{APIResponse, bad_request, unauthorized, forbidden, not_found,
                 internal_server_error, service_unavailable};
 
 
-#[error(400)]
+#[catch(400)]
 fn bad_request_handler() -> APIResponse {
     bad_request()
 }
 
-#[error(401)]
+#[catch(401)]
 fn unauthorized_handler() -> APIResponse {
     unauthorized()
 }
 
-#[error(403)]
+#[catch(403)]
 fn forbidden_handler() -> APIResponse {
     forbidden()
 }
 
-#[error(404)]
+#[catch(404)]
 fn not_found_handler() -> APIResponse {
     not_found()
 }
 
-#[error(500)]
+#[catch(500)]
 fn internal_server_error_handler() -> APIResponse {
     internal_server_error()
 }
 
-#[error(503)]
+#[catch(503)]
 fn service_unavailable_handler() -> APIResponse {
     service_unavailable()
 }
