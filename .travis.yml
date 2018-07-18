@@ -14,7 +14,7 @@ matrix:
     - rust: beta
 
 before_script:
-  - cargo install --force diesel_cli cargo-clippy
+  - rustup component add clippy-preview
   - cp .env.example .env
   - ./reset.sh
 script:
