@@ -14,7 +14,11 @@ requests and discussions on best practices welcome!
 Install a few external dependencies and make sure `~/.cargo/bin` is in your `$PATH`:
 
     cargo install diesel_cli
-    cargo install watchexec
+    cargo install cargo-watch
+
+Optionally if you want line coverage from your tests, install cargo-tarpaulin:
+
+    RUSTFLAGS="--cfg procmacro2_semver_exempt" cargo install --force cargo-tarpaulin
 
 Copy `.env.example` to `.env` and update your application environment in this file.
 
@@ -27,3 +31,7 @@ will remove and recreate the DB and run the migrations and then the tests on
 all code changes.
 
     ./watch.sh
+
+To get line coverage, do
+
+    cargo tarpaulin --ignore-tests
