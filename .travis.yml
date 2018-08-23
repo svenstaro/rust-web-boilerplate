@@ -1,6 +1,7 @@
 language: rust
 cache: cargo
 env:
+  - DATABASE_NAME=boilerplateapp
   - DATABASE_URL=postgres://localhost/boilerplateapp
 services:
   - postgresql
@@ -14,6 +15,7 @@ matrix:
     - rust: beta
 
 before_script:
+  - cargo install --force diesel_cli
   - rustup component add clippy-preview
   - cp .env.example .env
   - ./reset.sh
