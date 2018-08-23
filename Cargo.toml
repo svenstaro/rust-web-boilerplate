@@ -18,7 +18,6 @@ argon2rs = "0.2"
 rocket = { version = "0.3" }
 rocket_codegen = { version = "0.3" }
 diesel = { version = "1.2", features = ["postgres", "uuid", "chrono", "serde_json"] }
-diesel_codegen = { version = "0.16", features = ["postgres"] }
 r2d2 = "0.8"
 r2d2-diesel = "1.0"
 dotenv = "0.13"
