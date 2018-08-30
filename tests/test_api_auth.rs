@@ -1,5 +1,4 @@
-#![feature(plugin)]
-#![plugin(speculate)]
+#![feature(use_extern_macros, proc_macro_gen)]
 
 extern crate rocket;
 #[macro_use]
@@ -10,6 +9,7 @@ extern crate serde_json;
 extern crate uuid;
 #[macro_use]
 extern crate serde_derive;
+extern crate speculate;
 
 extern crate rust_web_boilerplate;
 
@@ -20,6 +20,7 @@ use rocket::http::{ContentType, Status};
 use rocket::local::Client;
 use rocket_contrib::Value;
 use uuid::Uuid;
+use speculate::speculate;
 
 use factories::make_user;
 use rust_web_boilerplate::models::user::UserModel;

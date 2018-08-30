@@ -31,7 +31,7 @@ rand = "0.5"
 
 [dev-dependencies]
 quickcheck = "0.7"
-speculate = "0.0.27"
+speculate = { git = "https://github.com/utkarshkukreti/speculate.rs" }
 parking_lot = { version = "0.6", features = ["nightly"] }
 
 [dependencies.rocket_contrib]
