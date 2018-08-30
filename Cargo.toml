@@ -30,7 +30,7 @@ ring = "0.11"
 rand = "0.5"
 
 [dev-dependencies]
-quickcheck = "0.6"
+quickcheck = "0.7"
 speculate = "0.0.27"
 parking_lot = { version = "0.6", features = ["nightly"] }
 
