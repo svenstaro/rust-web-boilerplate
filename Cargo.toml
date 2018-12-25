@@ -15,7 +15,7 @@ path = "src/main.rs"
 uuid = { version = "0.6", features = ["serde", "v4"] }
 chrono = { version = "0.4", features = ["serde"] }
 argon2rs = "0.2"
-rocket = { version = "0.3" }
+rocket = { version = "0.4" }
 rocket_codegen = { version = "0.3" }
 diesel = { version = "1.3", features = ["postgres", "uuid", "chrono", "serde_json"] }
 r2d2 = "0.8"
