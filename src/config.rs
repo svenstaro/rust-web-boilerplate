@@ -1,78 +1,107 @@
-use chrono::Duration;
+use rocket::config::{Config, ConfigError, Environment, Value};
 use std::env;
+use std::collections::HashMap;
 
+pub fn get_rocket_config(config_name: &str) -> Result<Config, ConfigError> {
+    fn production_config() -> Result<Config, ConfigError> {
+        let mut database_config = HashMap::new();
+        let mut databases = HashMap::new();
+        database_config.insert("url", Value::from(env::var("DATABASE_URL").unwrap()));
+        databases.insert("postgres_db", Value::from(database_config));
 
-#[derive(Debug)]
-pub struct Config {
-    pub auth_token_timeout_days: Duration,
-    pub database_url: String,
-    pub cors_allow_origin: String,
-    pub cors_allow_methods: String,
-    pub cors_allow_headers: String,
-    pub environment_name: String,
-}
-
-impl Default for Config {
-    fn default() -> Config {
-        Config {
-            auth_token_timeout_days: Duration::days(30),
-            database_url: env::var("DATABASE_URL").expect("DATABASE_URL must be set"),
-            cors_allow_origin: String::from("*"),
-            cors_allow_methods: String::from("*"),
-            cors_allow_headers: String::from("*"),
-            environment_name: String::from("unconfigured"),
-        }
-    }
-}
-
-impl Config {
-    pub fn from(config_name: &str) -> Result<Config, String> {
-        // We'll start with a base config that sets some defaults and then apply the chosen app config.
-        match config_name {
-            "production" => Ok(Config::production_config()),
-            "staging" => Ok(Config::staging_config()),
-            "develop" => Ok(Config::develop_config()),
-            "testing" => Ok(Config::testing_config()),
-            "local" => Ok(Config::local_config()),
-            _ => Err(format!("No valid config chosen: {}", config_name)),
-        }
+        Config::build(Environment::Production)
+            .address("0.0.0.0")
+            .port(8080)
+            .extra("environment_name", "production")
+            .extra("auth_token_timeout_days", 30)
+            .extra("cors_allow_origin", "https://example.com")
+            .extra("cors_allow_headers", "*")
+            .extra("cors_allow_methods", "*")
+            .extra("databases", databases)
+            .finalize()
     }
 
-    fn production_config() -> Config {
-        Config {
-            cors_allow_origin: String::from("https://example.com"),
-            environment_name: String::from("production"),
-            ..Default::default()
-        }
+    fn staging_config() -> Result<Config, ConfigError> {
+        let mut database_config = HashMap::new();
+        let mut databases = HashMap::new();
+        database_config.insert("url", Value::from(env::var("DATABASE_URL").unwrap()));
+        databases.insert("postgres_db", Value::from(database_config));
+
+        Config::build(Environment::Staging)
+            .address("0.0.0.0")
+            .port(8080)
+            .extra("environment_name", "staging")
+            .extra("auth_token_timeout_days", 30)
+            .extra("cors_allow_origin", "https://staging.example.com")
+            .extra("cors_allow_headers", "*")
+            .extra("cors_allow_methods", "*")
+            .extra("databases", databases)
+            .finalize()
     }
 
-    fn staging_config() -> Config {
-        Config {
-            cors_allow_origin: String::from("https://staging.example.com"),
-            environment_name: String::from("staging"),
-            ..Default::default()
-        }
+    fn develop_config() -> Result<Config, ConfigError> {
+        let mut database_config = HashMap::new();
+        let mut databases = HashMap::new();
+        database_config.insert("url", Value::from(env::var("DATABASE_URL").unwrap()));
+        databases.insert("postgres_db", Value::from(database_config));
+
+        Config::build(Environment::Staging)
+            .address("0.0.0.0")
+            .port(8080)
+            .extra("environment_name", "develop")
+            .extra("auth_token_timeout_days", 30)
+            .extra("cors_allow_origin", "https://develop.example.com")
+            .extra("cors_allow_headers", "*")
+            .extra("cors_allow_methods", "*")
+            .extra("databases", databases)
+            .finalize()
     }
 
-    fn develop_config() -> Config {
-        Config{
-            cors_allow_origin: String::from("https://develop.example.com"),
-            environment_name: String::from("develop"),
-            ..Default::default()
-        }
+    fn testing_config() -> Result<Config, ConfigError> {
+        let mut database_config = HashMap::new();
+        let mut databases = HashMap::new();
+        database_config.insert("url", Value::from(env::var("DATABASE_URL").unwrap()));
+        databases.insert("postgres_db", Value::from(database_config));
+
+        Config::build(Environment::Staging)
+            .address("0.0.0.0")
+            .port(5000)
+            .extra("environment_name", "testing")
+            .extra("auth_token_timeout_days", 30)
+            .extra("cors_allow_origin", "*")
+            .extra("cors_allow_headers", "*")
+            .extra("cors_allow_methods", "*")
+            .extra("databases", databases)
+            .finalize()
     }
 
-    fn testing_config() -> Config {
-        Config{
-            environment_name: String::from("testing"),
-            ..Default::default()
-        }
+    fn local_config() -> Result<Config, ConfigError> {
+        let mut database_config = HashMap::new();
+        let mut databases = HashMap::new();
+        database_config.insert("url", Value::from(env::var("DATABASE_URL").unwrap()));
+        databases.insert("postgres_db", Value::from(database_config));
+
+        Config::build(Environment::Staging)
+            .address("0.0.0.0")
+            .port(5000)
+            .extra("environment_name", "local")
+            .extra("auth_token_timeout_days", 30)
+            .extra("cors_allow_origin", "*")
+            .extra("cors_allow_headers", "*")
+            .extra("cors_allow_methods", "*")
+            .extra("databases", databases)
+            .finalize()
     }
 
-    fn local_config() -> Config {
-        Config{
-            environment_name: String::from("local"),
-            ..Default::default()
-        }
+    match config_name {
+        "prod" => production_config(),
+        "stage" => staging_config(),
+        "dev" => develop_config(),
+        "test" => testing_config(),
+        "local" => local_config(),
+        _ => Err(ConfigError::BadEnv(format!(
+            "No valid config chosen: {}",
+            config_name
+        ))),
     }
 }

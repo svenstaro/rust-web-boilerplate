@@ -1,5 +1,5 @@
-use models::user::UserModel;
-use responses::{APIResponse, ok};
+use crate::models::user::UserModel;
+use crate::responses::{ok, APIResponse};
 
 #[get("/whoami")]
 pub fn whoami(current_user: UserModel) -> APIResponse {

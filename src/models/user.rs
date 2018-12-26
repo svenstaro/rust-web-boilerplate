@@ -1,16 +1,21 @@
+// TODO: Silence this until diesel 1.4.
+// See https://github.com/diesel-rs/diesel/issues/1785#issuecomment-422579609.
+#![allow(proc_macro_derive_resolution_fallback)]
+
 use std::fmt;
 
-use uuid::Uuid;
-use chrono::{NaiveDateTime, Utc, Duration};
 use argon2rs::argon2i_simple;
+use chrono::{Duration, NaiveDateTime, Utc};
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use diesel::result::Error as DieselError;
-use ring::constant_time::verify_slices_are_equal;
-use rand::{Rng, OsRng};
 use rand::distributions::Alphanumeric;
+use rand::rngs::OsRng;
+use rand::Rng;
+use ring::constant_time::verify_slices_are_equal;
+use uuid::Uuid;
 
-use schema::users;
+use crate::schema::users;
 
 #[derive(Debug, Serialize, Deserialize, Queryable, Identifiable, AsChangeset)]
 #[table_name = "users"]
@@ -52,7 +57,10 @@ impl UserModel {
     /// Generate an auth token and save it to the `current_auth_token` column.
     pub fn generate_auth_token(&mut self, conn: &PgConnection) -> Result<String, DieselError> {
         let mut rand_gen = OsRng::new().expect("Couldn't make OsRng!");
-        let new_auth_token = rand_gen.sample_iter(&Alphanumeric).take(32).collect::<String>();
+        let new_auth_token = rand_gen
+            .sample_iter(&Alphanumeric)
+            .take(32)
+            .collect::<String>();
         self.current_auth_token = Some(new_auth_token.clone());
         self.last_action = Some(Utc::now().naive_utc());
         self.save_changes::<UserModel>(conn)?;
@@ -78,16 +86,13 @@ impl UserModel {
     /// A login token has this format:
     ///     <user uuid>:<auth token>
     pub fn get_user_from_login_token(token: &str, db: &PgConnection) -> Option<UserModel> {
-        use schema::users::dsl::*;
+        use crate::schema::users::dsl::*;
 
         let v: Vec<&str> = token.split(':').collect();
         let user_id = Uuid::parse_str(v.get(0).unwrap_or(&"")).unwrap_or_default();
         let auth_token = v.get(1).unwrap_or(&"").to_string();
 
-        let user = users
-            .find(user_id)
-            .first::<UserModel>(&*db)
-            .optional();
+        let user = users.find(user_id).first::<UserModel>(&*db).optional();
         if let Ok(Some(u)) = user {
             if let Some(token) = u.current_auth_token.clone() {
                 if verify_slices_are_equal(token.as_bytes(), auth_token.as_bytes()).is_ok() {

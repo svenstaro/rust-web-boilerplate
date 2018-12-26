@@ -1,18 +1,17 @@
-use rocket::State;
-use rocket_contrib::Json;
-use validation::user::UserLogin;
-use diesel::prelude::*;
 use diesel;
+use diesel::prelude::*;
+use rocket::State;
+use rocket_contrib::json::Json;
 use serde_json::Value;
 
-use models::user::{UserModel, NewUser};
-use schema::users;
-use schema::users::dsl::*;
-use helpers::db::DB;
-use responses::{APIResponse, ok, created, conflict, unauthorized, unprocessable_entity,
-internal_server_error};
-use config::Config;
-
+use crate::models::user::{NewUser, UserModel};
+use crate::responses::{
+    conflict, created, internal_server_error, ok, unauthorized, unprocessable_entity, APIResponse,
+};
+use crate::schema::users;
+use crate::schema::users::dsl::*;
+use crate::validation::user::UserLogin;
+use crate::database::DbConn;
 
 /// Log the user in and return a response with an auth token.
 ///
@@ -20,9 +19,8 @@ use config::Config;
 #[post("/login", data = "<user_in>", format = "application/json")]
 pub fn login(
     user_in: Json<UserLogin>,
-    db: DB,
-    config: State<Config>,
-    ) -> Result<APIResponse, APIResponse> {
+    db: DbConn,
+) -> Result<APIResponse, APIResponse> {
     let user_q = users
         .filter(email.eq(&user_in.email))
         .first::<UserModel>(&*db)
@@ -30,9 +28,8 @@ pub fn login(
 
     // For privacy reasons, we'll not provide the exact reason for failure here (although this
     // could probably be timing attacked to find out whether users exist or not.
-    let mut user = user_q.ok_or_else(|| {
-        unauthorized().message("Username or password incorrect.")
-    })?;
+    let mut user =
+        user_q.ok_or_else(|| unauthorized().message("Username or password incorrect."))?;
 
     if !user.verify_password(user_in.password.as_str()) {
         return Err(unauthorized().message("Username or password incorrect."));
@@ -66,7 +63,11 @@ pub fn register(user: Result<UserLogin, Value>, db: DB) -> Result<APIResponse, A
     let insert_result = diesel::insert_into(users::table)
         .values(&new_user)
         .get_result::<UserModel>(&*db);
-    if let Err(diesel::result::Error::DatabaseError(diesel::result::DatabaseErrorKind::UniqueViolation, _)) = insert_result {
+    if let Err(diesel::result::Error::DatabaseError(
+        diesel::result::DatabaseErrorKind::UniqueViolation,
+        _,
+    )) = insert_result
+    {
         return Err(conflict().message("User already exists."));
     }
 

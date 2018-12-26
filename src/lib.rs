@@ -1,8 +1,8 @@
-#![feature(plugin)]
-#![plugin(rocket_codegen)]
-#![recursion_limit="128"]
+#![feature(proc_macro_hygiene, decl_macro)]
+#![recursion_limit = "128"]
 
 extern crate uuid;
+#[macro_use]
 extern crate rocket;
 #[macro_use]
 extern crate rocket_contrib;
@@ -14,42 +14,30 @@ extern crate validator;
 extern crate validator_derive;
 #[macro_use]
 extern crate diesel;
-extern crate chrono;
 extern crate argon2rs;
-extern crate r2d2;
-extern crate r2d2_diesel;
-extern crate ring;
+extern crate chrono;
 extern crate rand;
+extern crate ring;
 
 pub mod api;
 pub mod config;
+pub mod database;
 pub mod handlers;
-pub mod helpers;
 pub mod models;
 pub mod responses;
 pub mod schema;
 pub mod validation;
 
-use std::sync::Arc;
-
 /// Constructs a new Rocket instance.
 ///
 /// This function takes care of attaching all routes and handlers of the application.
-pub fn rocket_factory(config_name: &str) -> Result<(rocket::Rocket, helpers::db::Pool), String> {
-    let config = config::Config::from(config_name)?;
-    let db_pool = helpers::db::init_db_pool(&config.database_url).map_err(|e| e.to_string())?;
-    let rocket = rocket::ignite()
-        .manage(Arc::clone(&db_pool))
-        .manage(config)
+pub fn rocket_factory(config_name: &str) -> Result<rocket::Rocket, String> {
+    let config = config::get_rocket_config(config_name).map_err(|x| format!("{}", x))?;
+    let rocket = rocket::custom(config)
+        .attach(database::DbConn::fairing())
         .mount("/hello/", routes![api::hello::whoami])
-        .mount(
-            "/auth/",
-            routes![
-               api::auth::login,
-               api::auth::register,
-        ],
-        )
-        .catch(catchers![
+        .mount("/auth/", routes![api::auth::login, api::auth::register,])
+        .register(catchers![
             handlers::bad_request_handler,
             handlers::unauthorized_handler,
             handlers::forbidden_handler,
@@ -57,5 +45,5 @@ pub fn rocket_factory(config_name: &str) -> Result<(rocket::Rocket, helpers::db:
             handlers::internal_server_error_handler,
             handlers::service_unavailable_handler,
         ]);
-    Ok((rocket, db_pool))
+    Ok(rocket)
 }

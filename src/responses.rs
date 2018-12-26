@@ -1,6 +1,6 @@
 use std::io::Cursor;
 use std::convert::From;
-use rocket_contrib::Value;
+use rocket_contrib::json::JsonValue;
 use rocket::request::Request;
 use rocket::response::{Response, Responder};
 use rocket::http::{Status, ContentType};
@@ -8,13 +8,13 @@ use diesel::result::Error as DieselError;
 
 #[derive(Debug)]
 pub struct APIResponse {
-    data: Value,
+    data: JsonValue,
     status: Status,
 }
 
 impl APIResponse {
     /// Set the data of the `Response` to `data`.
-    pub fn data(mut self, data: Value) -> APIResponse {
+    pub fn data(mut self, data: JsonValue) -> APIResponse {
         self.data = data;
         self
     }
@@ -116,7 +116,7 @@ pub fn conflict() -> APIResponse {
     }
 }
 
-pub fn unprocessable_entity(errors: Value) -> APIResponse {
+pub fn unprocessable_entity(errors: JsonValue) -> APIResponse {
     APIResponse {
         data: json!({"message": errors}),
         status: Status::UnprocessableEntity,
