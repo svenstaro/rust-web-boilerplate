@@ -35,7 +35,7 @@ speculate = { git = "https://github.com/utkarshkukreti/speculate.rs" }
 parking_lot = { version = "0.6", features = ["nightly"] }
 
 [dependencies.rocket_contrib]
-version = "0.3"
+version = "0.4"
 default-features = false
 features = ["json"]
 
