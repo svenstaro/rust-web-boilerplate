@@ -18,6 +18,7 @@ matrix:
 
 before_script:
   - cargo install --force diesel_cli
+  - rustup update
   - rustup component add clippy
   - cp .env.example .env
   - ./reset.sh
