@@ -32,7 +32,7 @@ impl FromDataSimple for UserLogin {
             ));
         }
         let user =
-            Json::<UserLogin>::from_data(req, Transform::Owned(Success(d))).map_failure(|_| {
+            Json::<UserLogin>::from_data(req, Transform::Borrowed(Success(&d))).map_failure(|_| {
                 (
                     Status::UnprocessableEntity,
                     json!({"_schema": "Error while parsing user login."}),
