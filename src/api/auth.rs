@@ -1,9 +1,11 @@
 use diesel;
 use diesel::prelude::*;
-use rocket::State;
-use rocket_contrib::json::Json;
-use serde_json::Value;
+use rocket::{post, State};
+use rocket_contrib::json;
+use rocket_contrib::json::{Json, JsonValue};
 
+use crate::config::AppConfig;
+use crate::database::DbConn;
 use crate::models::user::{NewUser, UserModel};
 use crate::responses::{
     conflict, created, internal_server_error, ok, unauthorized, unprocessable_entity, APIResponse,
@@ -11,7 +13,6 @@ use crate::responses::{
 use crate::schema::users;
 use crate::schema::users::dsl::*;
 use crate::validation::user::UserLogin;
-use crate::database::DbConn;
 
 /// Log the user in and return a response with an auth token.
 ///
@@ -19,6 +20,7 @@ use crate::database::DbConn;
 #[post("/login", data = "<user_in>", format = "application/json")]
 pub fn login(
     user_in: Json<UserLogin>,
+    app_config: State<AppConfig>,
     db: DbConn,
 ) -> Result<APIResponse, APIResponse> {
     let user_q = users
@@ -35,7 +37,7 @@ pub fn login(
         return Err(unauthorized().message("Username or password incorrect."));
     }
 
-    let token = if user.has_valid_auth_token(config.auth_token_timeout_days) {
+    let token = if user.has_valid_auth_token(app_config.auth_token_timeout_days) {
         user.current_auth_token.ok_or_else(internal_server_error)?
     } else {
         user.generate_auth_token(&db)?
@@ -51,7 +53,10 @@ pub fn login(
 ///
 /// Return CONFLICT is a user with the same email already exists.
 #[post("/register", data = "<user>", format = "application/json")]
-pub fn register(user: Result<UserLogin, Value>, db: DB) -> Result<APIResponse, APIResponse> {
+pub fn register(
+    user: Result<UserLogin, JsonValue>,
+    db: DbConn,
+) -> Result<APIResponse, APIResponse> {
     let user_data = user.map_err(unprocessable_entity)?;
 
     let new_password_hash = UserModel::make_password_hash(user_data.password.as_str());

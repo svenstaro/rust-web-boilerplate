@@ -1,23 +1,12 @@
 #![feature(proc_macro_hygiene, decl_macro)]
 #![recursion_limit = "128"]
 
-extern crate uuid;
-#[macro_use]
-extern crate rocket;
-#[macro_use]
-extern crate rocket_contrib;
-extern crate serde_json;
-#[macro_use]
-extern crate serde_derive;
-extern crate validator;
-#[macro_use]
-extern crate validator_derive;
+// Keep the pre-2018 style [macro_use] for diesel because it's annoying otherwise:
+// https://github.com/diesel-rs/diesel/issues/1764
 #[macro_use]
 extern crate diesel;
-extern crate argon2rs;
-extern crate chrono;
-extern crate rand;
-extern crate ring;
+
+use rocket::{catchers, routes};
 
 pub mod api;
 pub mod config;
@@ -32,9 +21,11 @@ pub mod validation;
 ///
 /// This function takes care of attaching all routes and handlers of the application.
 pub fn rocket_factory(config_name: &str) -> Result<rocket::Rocket, String> {
-    let config = config::get_rocket_config(config_name).map_err(|x| format!("{}", x))?;
-    let rocket = rocket::custom(config)
+    let (app_config, rocket_config) =
+        config::get_rocket_config(config_name).map_err(|x| format!("{}", x))?;
+    let rocket = rocket::custom(rocket_config)
         .attach(database::DbConn::fairing())
+        .manage(app_config)
         .mount("/hello/", routes![api::hello::whoami])
         .mount("/auth/", routes![api::auth::login, api::auth::register,])
         .register(catchers![

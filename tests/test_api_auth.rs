@@ -1,5 +1,3 @@
-#![feature(use_extern_macros)]
-
 extern crate rocket;
 #[macro_use]
 extern crate rocket_contrib;
@@ -18,14 +16,16 @@ use diesel::prelude::*;
 use parking_lot::Mutex;
 use rocket::http::{ContentType, Status};
 use rocket::local::Client;
-use rocket_contrib::Value;
+use rocket_contrib::json::JsonValue;
 use uuid::Uuid;
 use speculate::speculate;
 
-use factories::make_user;
 use rust_web_boilerplate::models::user::UserModel;
 use rust_web_boilerplate::rocket_factory;
+use rust_web_boilerplate::database::DbConn;
 use rust_web_boilerplate::schema::users::dsl::*;
+
+use crate::factories::make_user;
 
 mod common;
 mod factories;
@@ -42,15 +42,15 @@ speculate! {
     before {
         common::setup();
         let _lock = DB_LOCK.lock();
-        let (rocket, db) = rocket_factory("testing").unwrap();
+        let rocket = rocket_factory("testing").unwrap();
         let client = Client::new(rocket).unwrap();
         #[allow(unused_variables)]
-        let conn = &*db.get().expect("Failed to get a database connection for testing!");
+        let conn = DbConn::get_one(client.rocket()).expect("Failed to get a database connection for testing!");
     }
 
     describe "login" {
         it "enables users to login and get back a valid auth token" {
-            let user = make_user(conn);
+            let user = make_user(&conn);
             let data = json!({
                 "email": user.email,
                 "password": "testtest",
@@ -63,14 +63,14 @@ speculate! {
 
             let refreshed_user = users
                 .find(user.id)
-                .first::<UserModel>(conn).unwrap();
+                .first::<UserModel>(&*conn).unwrap();
             assert_eq!(res.status(), Status::Ok);
             assert_eq!(body.user_id, refreshed_user.id);
             assert_eq!(body.token, refreshed_user.current_auth_token.unwrap());
         }
 
         it "can log in and get back the same auth token if there's already a valid one" {
-            let user = make_user(conn);
+            let user = make_user(&conn);
             let data = json!({
                 "email": user.email,
                 "password": "testtest",
@@ -84,7 +84,7 @@ speculate! {
                     .dispatch();
                 let user_after_first_login = users
                     .find(user.id)
-                    .first::<UserModel>(conn).unwrap();
+                    .first::<UserModel>(&*conn).unwrap();
                 user_after_first_login.current_auth_token.unwrap()
             };
 
@@ -96,7 +96,7 @@ speculate! {
                     .dispatch();
                 let user_after_second_login = users
                     .find(user.id)
-                    .first::<UserModel>(conn).unwrap();
+                    .first::<UserModel>(&*conn).unwrap();
                 user_after_second_login.current_auth_token.unwrap()
             };
 
@@ -104,7 +104,7 @@ speculate! {
         }
 
         it "fails with a wrong username" {
-            make_user(conn);
+            make_user(&conn);
             let data = json!({
                     "email": "invalid@example.com",
                     "password": "testtest",
@@ -113,14 +113,14 @@ speculate! {
                 .header(ContentType::JSON)
                 .body(data.to_string())
                 .dispatch();
-            let body: Value = serde_json::from_str(&res.body_string().unwrap()).unwrap();
+            let body: JsonValue = serde_json::from_str(&res.body_string().unwrap()).unwrap();
 
             assert_eq!(res.status(), Status::Unauthorized);
             assert_eq!(body["message"], "Username or password incorrect.");
         }
 
         it "fails with a wrong password" {
-            let user = make_user(conn);
+            let user = make_user(&conn);
             let data = json!({
                     "email": user.email,
                     "password": "invalid",
@@ -129,7 +129,7 @@ speculate! {
                 .header(ContentType::JSON)
                 .body(data.to_string())
                 .dispatch();
-            let body: Value = serde_json::from_str(&res.body_string().unwrap()).unwrap();
+            let body: JsonValue = serde_json::from_str(&res.body_string().unwrap()).unwrap();
 
             assert_eq!(res.status(), Status::Unauthorized);
             assert_eq!(body["message"], "Username or password incorrect.");
@@ -166,7 +166,7 @@ speculate! {
 
             let logged_in_user = users
                 .filter(email.eq(new_email))
-                .first::<UserModel>(conn).unwrap();
+                .first::<UserModel>(&*conn).unwrap();
             assert_eq!(res.status(), Status::Ok);
             assert_eq!(body.token, logged_in_user.current_auth_token.unwrap());
         }
@@ -187,7 +187,7 @@ speculate! {
                 .header(ContentType::JSON)
                 .body(data.to_string())
                 .dispatch();
-            let body: Value = serde_json::from_str(&res.body_string().unwrap()).unwrap();
+            let body: JsonValue = serde_json::from_str(&res.body_string().unwrap()).unwrap();
 
             assert_eq!(res.status(), Status::Conflict);
             assert_eq!(body["message"], "User already exists.");
@@ -202,10 +202,10 @@ speculate! {
                 .header(ContentType::JSON)
                 .body(data.to_string())
                 .dispatch();
-            let body: Value = serde_json::from_str(&res.body_string().unwrap()).unwrap();
+            let body: JsonValue = serde_json::from_str(&res.body_string().unwrap()).unwrap();
 
             assert_eq!(res.status(), Status::UnprocessableEntity);
-            assert_eq!(body["message"]["email"], json!(["Invalid email."]));
+            assert_eq!(body["message"]["email"], *json!(["Invalid email."]));
         }
 
         it "can't register with an empty email" {
@@ -217,10 +217,10 @@ speculate! {
                 .header(ContentType::JSON)
                 .body(data.to_string())
                 .dispatch();
-            let body: Value = serde_json::from_str(&res.body_string().unwrap()).unwrap();
+            let body: JsonValue = serde_json::from_str(&res.body_string().unwrap()).unwrap();
 
             assert_eq!(res.status(), Status::UnprocessableEntity);
-            assert_eq!(body["message"]["email"], json!(["Must not be empty."]));
+            assert_eq!(body["message"]["email"], *json!(["Must not be empty."]));
         }
 
         it "can't register with an empty password" {
@@ -232,10 +232,10 @@ speculate! {
                 .header(ContentType::JSON)
                 .body(data.to_string())
                 .dispatch();
-            let body: Value = serde_json::from_str(&res.body_string().unwrap()).unwrap();
+            let body: JsonValue = serde_json::from_str(&res.body_string().unwrap()).unwrap();
 
             assert_eq!(res.status(), Status::UnprocessableEntity);
-            assert_eq!(body["message"]["password"], json!(["Must not be empty."]));
+            assert_eq!(body["message"]["password"], *json!(["Must not be empty."]));
         }
     }
 }

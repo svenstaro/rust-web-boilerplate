@@ -13,6 +13,7 @@ use rand::distributions::Alphanumeric;
 use rand::rngs::OsRng;
 use rand::Rng;
 use ring::constant_time::verify_slices_are_equal;
+use serde_derive::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::schema::users;

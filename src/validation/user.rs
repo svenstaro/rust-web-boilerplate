@@ -2,12 +2,14 @@ use rocket::data::{self, FromData, FromDataSimple, Transform};
 use rocket::http::Status;
 use rocket::Outcome::*;
 use rocket::{Data, Request};
+use rocket_contrib::json;
 use rocket_contrib::json::{Json, JsonValue};
+use serde_derive::Deserialize;
 use std::collections::HashMap;
 use std::io::Read;
-
 use uuid::Uuid;
 use validator::Validate;
+use validator_derive::Validate;
 
 #[derive(Deserialize, Debug, Validate)]
 pub struct UserLogin {

@@ -1,5 +1,3 @@
-#![feature(use_extern_macros)]
-
 extern crate rocket;
 #[macro_use]
 extern crate rocket_contrib;
@@ -21,8 +19,10 @@ use rocket::local::Client;
 use uuid::Uuid;
 use speculate::speculate;
 
-use factories::make_user;
 use rust_web_boilerplate::rocket_factory;
+use rust_web_boilerplate::database::DbConn;
+
+use crate::factories::make_user;
 
 mod common;
 mod factories;
@@ -38,15 +38,15 @@ speculate! {
     before {
         common::setup();
         let _lock = DB_LOCK.lock();
-        let (rocket, db) = rocket_factory("testing").unwrap();
+        let rocket = rocket_factory("testing").unwrap();
         let client = Client::new(rocket).unwrap();
         #[allow(unused_variables)]
-        let conn = &*db.get().expect("Failed to get a database connection for testing!");
+        let conn = DbConn::get_one(client.rocket()).expect("Failed to get a database connection for testing!");
     }
 
     describe "whoami" {
         it "echoes back the email" {
-            let user = make_user(conn);
+            let user = make_user(&conn);
             let data = json!({
                 "email": user.email,
                 "password": "testtest",
@@ -67,7 +67,7 @@ speculate! {
         }
 
         it "returns BadRequest when sent no Authorization header" {
-            let user = make_user(conn);
+            let user = make_user(&conn);
             let data = json!({
                 "email": user.email,
                 "password": "testtest",
@@ -85,7 +85,7 @@ speculate! {
         }
 
         it "returns Unauthorized when sent an invalid token" {
-            let user = make_user(conn);
+            let user = make_user(&conn);
             let data = json!({
                 "email": user.email,
                 "password": "testtest",
