@@ -1,7 +1,9 @@
 # Rust Web Boilerplate
 
 [![Build Status](https://travis-ci.org/svenstaro/rust-web-boilerplate.svg?branch=master)](https://travis-ci.org/svenstaro/rust-web-boilerplate)
+[![codecov](https://codecov.io/gh/svenstaro/rust-web-boilerplate/branch/master/graph/badge.svg)](https://codecov.io/gh/svenstaro/rust-web-boilerplate)
 [![dependency status](https://deps.rs/repo/github/svenstaro/rust-web-boilerplate/status.svg)](https://deps.rs/repo/github/svenstaro/rust-web-boilerplate)
+[![license](http://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/svenstaro/rust-web-boilerplate/blob/master/LICENSE)
 
 
 ## About
