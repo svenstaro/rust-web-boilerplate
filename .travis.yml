@@ -18,18 +18,11 @@ matrix:
 
 before_script:
   - cargo install --force diesel_cli
-  - rustup update
-  - rustup component add clippy
   - cp .env.example .env
   - ./reset.sh
 
 script:
-  - |
-    if [[ "TRAVIS_RUST_VERSION" == "nightly" ]]; then
-      cargo clippy
-    else
-      cargo build
-    fi
+  - cargo build --verbose
   - cargo test --verbose
 
 after_success: |
