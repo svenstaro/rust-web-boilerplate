@@ -20,6 +20,10 @@ before_script:
   - cargo install --force diesel_cli
   - cp .env.example .env
   - ./reset.sh
+  - |
+    if [[ "$TRAVIS_RUST_VERSION" == nightly && "$TRAVIS_OS_NAME" == "linux" ]]; then
+      RUSTFLAGS="--cfg procmacro2_semver_exempt" cargo install cargo-tarpaulin
+    fi
 
 script:
   - cargo build --verbose
