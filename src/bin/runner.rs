@@ -1,6 +1,3 @@
-extern crate rust_web_boilerplate;
-extern crate dotenv;
-
 use dotenv::dotenv;
 use std::env;
 

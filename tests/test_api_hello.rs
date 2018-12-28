@@ -1,26 +1,15 @@
-extern crate rocket;
-#[macro_use]
-extern crate rocket_contrib;
-extern crate diesel;
-extern crate parking_lot;
-extern crate serde_json;
-extern crate uuid;
-#[macro_use]
-extern crate serde_derive;
-extern crate speculate;
-
-extern crate rust_web_boilerplate;
-
 #[allow(unused_imports)]
 use diesel::prelude::*;
 use parking_lot::Mutex;
 use rocket::http::{ContentType, Header, Status};
 use rocket::local::Client;
-use uuid::Uuid;
+use rocket_contrib::json;
+use serde_derive::Deserialize;
 use speculate::speculate;
+use uuid::Uuid;
 
-use rust_web_boilerplate::rocket_factory;
 use rust_web_boilerplate::database::DbConn;
+use rust_web_boilerplate::rocket_factory;
 
 use crate::factories::make_user;
 
