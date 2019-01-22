@@ -127,7 +127,7 @@ speculate! {
 
     describe "register" {
         it "allows users to register a new account and then login with it" {
-            let new_email = format!("{username}@example.com", username=Uuid::new_v4().hyphenated().to_string());
+            let new_email = format!("{username}@example.com", username=Uuid::new_v4().to_hyphenated().to_string());
             let new_password = "mypassword";
             let data = json!({
                 "email": new_email,
@@ -161,7 +161,7 @@ speculate! {
         }
 
         it "can't register with an existing email" {
-            let new_email = format!("{username}@example.com", username=Uuid::new_v4().hyphenated().to_string());
+            let new_email = format!("{username}@example.com", username=Uuid::new_v4().to_hyphenated().to_string());
             let new_password = "mypassword";
             let data = json!({
                 "email": new_email,

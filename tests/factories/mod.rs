@@ -10,7 +10,7 @@ use rust_web_boilerplate::schema::users::dsl::*;
 ///
 /// The user's email will be set to '<uuid>@example.com'.
 pub fn make_user(conn: &PgConnection) -> UserModel {
-    let new_email = format!("{username}@example.com", username=Uuid::new_v4().hyphenated().to_string());
+    let new_email = format!("{username}@example.com", username=Uuid::new_v4().to_hyphenated().to_string());
     let new_password_hash = UserModel::make_password_hash("testtest");
     let new_user = NewUser {
         email: new_email,
