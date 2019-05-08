@@ -14,7 +14,7 @@ chrono = { version = "0.4", features = ["serde"] }
 argon2rs = "0.2"
 rocket = "0.4"
 diesel = { version = "1.4", features = ["postgres", "uuidv07", "chrono", "serde_json"] }
-dotenv = "0.13"
+dotenv = "0.14"
 serde = "1"
 serde_json = "1"
 serde_derive = "1"
