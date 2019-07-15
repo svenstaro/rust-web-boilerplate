@@ -26,7 +26,7 @@ rand = "0.7"
 [dev-dependencies]
 quickcheck = "0.8"
 speculate = "0.1"
-parking_lot = { version = "0.8", features = ["nightly"] }
+parking_lot = { version = "0.9", features = ["nightly"] }
 
 [dependencies.rocket_contrib]
 version = "0.4"
