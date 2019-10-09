@@ -10,8 +10,7 @@ use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use diesel::result::Error as DieselError;
 use rand::distributions::Alphanumeric;
-use rand::rngs::OsRng;
-use rand::Rng;
+use rand::{Rng, thread_rng};
 use ring::constant_time::verify_slices_are_equal;
 use serde_derive::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -57,8 +56,8 @@ impl UserModel {
 
     /// Generate an auth token and save it to the `current_auth_token` column.
     pub fn generate_auth_token(&mut self, conn: &PgConnection) -> Result<String, DieselError> {
-        let mut rand_gen = OsRng::new().expect("Couldn't make OsRng!");
-        let new_auth_token = rand_gen
+        let rng = thread_rng();
+        let new_auth_token = rng
             .sample_iter(&Alphanumeric)
             .take(32)
             .collect::<String>();
