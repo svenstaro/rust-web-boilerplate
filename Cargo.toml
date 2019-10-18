@@ -9,7 +9,7 @@ name = "rust_web_boilerplate"
 path = "src/lib.rs"
 
 [dependencies]
-uuid = { version = "0.7", features = ["serde", "v4"] }
+uuid = { version = "0.8", features = ["serde", "v4"] }
 chrono = { version = "0.4", features = ["serde"] }
 argon2rs = "0.2"
 rocket = "0.4"
