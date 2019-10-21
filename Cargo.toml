@@ -19,7 +19,7 @@ serde = "1"
 serde_json = "1"
 serde_derive = "1"
 validator = "0.9"
-validator_derive = "0.9"
+validator_derive = "0.10"
 ring = "0.13"
 rand = "0.7"
 
