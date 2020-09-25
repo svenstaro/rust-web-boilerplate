@@ -20,7 +20,7 @@ Install a few external dependencies and make sure `~/.cargo/bin` is in your `$PA
 
 Optionally if you want line coverage from your tests, install cargo-tarpaulin:
 
-    RUSTFLAGS="--cfg procmacro2_semver_exempt" cargo install --force cargo-tarpaulin
+    cargo-tarpaulin
 
 Copy `.env.example` to `.env` and update your application environment in this file.
 
